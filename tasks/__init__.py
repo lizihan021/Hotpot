@@ -93,11 +93,6 @@ class AbstractTask(object):
         try:
             id_N = int((len(gr['si0']) + batch_size-1) / batch_size)
             ids = list(range(id_N))
-            print('###########ids')
-            print(len(gr['si0']))
-            print(batch_size)
-            print(id_N)
-            print(ids)
             while True:
                 if shuffle:
                     # XXX: We never swap samples between batches, does it matter?
@@ -208,7 +203,7 @@ class AbstractTask(object):
     def predict(self, model, gr):
         if self.c['ptscorer'] is None:
             return model.predict(gr)
-        batch_size = 3000  # XXX: hardcoded
+        batch_size = 16384  # XXX: hardcoded
         ypred = []
         for ogr, _ in self.sample_pairs(gr, batch_size, shuffle=False, once=True):
             ypred += list(model.predict(ogr)['score'][:,0])

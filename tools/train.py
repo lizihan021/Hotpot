@@ -86,7 +86,7 @@ def train_model(runid, model, task, c):
         n_samples = len(task.gr['score'])
     else:
         n_samples = len(task.gr['classes'])
-    fit_kwargs['steps_per_epoch'] = int(n_samples * c['epoch_fract'])
+    fit_kwargs['samples_per_epoch'] = int(n_samples * c['epoch_fract'])
     task.fit_model(model, weightsf='weights-'+runid+'-bestval.h5',
                    batch_size=c['batch_size'], epochs=c['epochs'],
                    **fit_kwargs)
