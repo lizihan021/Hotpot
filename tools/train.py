@@ -80,7 +80,7 @@ def config(model_config, task_config, params):
 def train_model(runid, model, task, c):
     print('Training')
     fit_kwargs = dict()
-    if c['balance_class']:
+    if c['balance_class']: # TODO?
         one_ratio = np.sum(task.gr['score'] == 1) / len(task.gr['score'])
         fit_kwargs['class_weight'] = {'score': {0: one_ratio, 1: 0.5}}
     if 'score' in task.gr:
@@ -92,7 +92,7 @@ def train_model(runid, model, task, c):
                    batch_size=c['batch_size'], epochs=c['epochs'],
                    **fit_kwargs)
     # model.save_weights('weights-'+runid+'-final.h5', overwrite=True)
-    if c['ptscorer'] is None:
+    if c['ptscorer'] is None: # TODO?
         model.save_weights('weights-'+runid+'-bestval.h5', overwrite=True)
     model.load_weights('weights-'+runid+'-bestval.h5')
 

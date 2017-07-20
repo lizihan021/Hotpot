@@ -56,26 +56,27 @@ def config(c):
     c['inp_w_dropout'] = 0
     # anssel-specific:
     c['ptscorer'] = B.mlp_ptscorer
-    c['mlpsum'] = 'sum'
+    c['mlpsum'] = 'absdiff'
     c['Ddim'] = 1
 
 
-def prep_model(embedded, N_emb, s0pad, s1pad, c):
-    TDLayer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0], ) + shape[2:])
-    e0b = TDLayer(embedded[0])
-    e1b = TDLayer(embedded[1])
+def prep_model(inputs, N, s0pad, s1pad, c):
+    avg = Lambda(function=lambda x: K.mean(x, axis=1), 
+                 output_shape=lambda shape: (shape[0], ) + shape[2:])
+    e0b = avg(inputs[0])
+    e1b = avg(inputs[1])
     bow_last = [e0b, e1b]
     
     # TODO Deep
     for i in range(c['deep']):
-        deepD1 = Dense(N_emb, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep[%d]'%(i,))
+        deepD1 = Dense(N, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep[%d]'%(i,))
         bow_next_0 = deepD1(bow_last[0])
         bow_next_1 = deepD1(bow_last[1])
         bow_last = [bow_next_0, bow_next_1]
 
     # TODO Projection
     if c['project']:
-        proj = Dense(int(N_emb*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
+        proj = Dense(int(N*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
         e0b = proj(bow_last[0])
         e1b = proj(bow_last[1])
 

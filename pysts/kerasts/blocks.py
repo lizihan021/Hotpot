@@ -12,13 +12,13 @@ from keras.layers import Input, add, concatenate, multiply
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU
 from keras.regularizers import l2
+from keras import backend as K
 
-#TODO delete nlp in this folder!
 import pysts.nlp as nlp
 
 
 def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
-              trainable=True, add_flags=True, create_inputs=True):
+              trainable=True, add_flags=True):
     """ The universal sequence input layer.
 
     Declare inputs si0, si1, se0, se1, f0, f1 (vectorized sentences and NLP flags)
@@ -39,6 +39,7 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     With trainable=True, allows adaptation of the embedding matrix during
     training.  With add_flags=True, append the NLP flags to the embeddings. """
 
+    '''
     if create_inputs:
 
         si0 = Input(name='si0', shape=(s0pad,), dtype='int32')
@@ -50,7 +51,7 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
             f0 = Input(name='f0', shape=(s0pad, nlp.flagsdim))
             f1 = Input(name='f1', shape=(s1pad, nlp.flagsdim))
             inputs = [si0, se0, si1, se1, f0, f1]
-    '''                   
+    
         for m, p in [(0, s0pad), (1, s1pad)]:
             input1 = Input(name='si%d'%(m,), shape=(p,), dtype='int32')
             input2 = Input(name='se%d'%(m,), shape=(p, glove.N))
@@ -59,10 +60,11 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     ''' 
     emb = vocab.embmatrix(glove)
     emb = Embedding(input_dim=emb.shape[0], input_length=s1pad, output_dim=glove.N,
-                  mask_zero=True, weights=[emb], trainable=trainable,
-                          dropout=dropout_w, name='emb') # TODO no longer support
-    e0_0 = emb(inputs[0])
-    e1_0 = emb(inputs[2])
+                    mask_zero=True, weights=[emb], trainable=trainable, name='emb') # TODO weights?
+
+    dropout1 = Dropout(dropout_w, name='embdrop_w')
+    e0_0 = dropout1(emb(inputs[0]))
+    e1_0 = dropout1(emb(inputs[2]))
     linear = Activation('linear')
     e0_1 = linear(add([e0_0, inputs[1]]))
     e1_1 = linear(add([e1_0, inputs[3]]))
@@ -75,9 +77,9 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     else:
         N_emb = glove.N
     
-    dropout = Dropout(dropout_e, name='embdrop')
-    e0 = dropout(eputs[0])
-    e1 = dropout(eputs[1])
+    dropout2 = Dropout(dropout_e, name='embdrop_e')
+    e0 = dropout2(eputs[0])
+    e1 = dropout2(eputs[1])
     
     '''
     node_emb = Model(name='emb', inputs=['si0', 'si1'], outputs=['e0[0]', 'e1[0]'])
@@ -89,7 +91,7 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     model.add_node(name='e0[1]', inputs=['e0[0]', 'se0'], merge_mode='sum', layer=Activation('linear'))
     model.add_node(name='e1[1]', inputs=['e1[0]', 'se1'], merge_mode='sum', layer=Activation('linear'))
     '''
-    embedding = [e0, e1]
+    embedded = [e0, e1]
 ###    embedding = Model(inputs=inputs, outputs=[e0, e1], name='embedding_block')
     '''
     if add_flags:
@@ -102,7 +104,7 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     model.add_shared_node(name='embdrop', inputs=eputs, outputs=['e0', 'e1'],
                           layer=Dropout(dropout, input_shape=(N,)))
     '''
-    return embedding, N_emb
+    return embedded, N_emb
 
 
 def rnn_input(model, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
@@ -254,19 +256,20 @@ def cos_ptscorer(model, inputs, Ddim, N, l2reg, pfx='out', extra_inp=[]):
 def mlp_ptscorer(inputs, Ddim, N, l2reg, pfx='out', Dinit='glorot_uniform', sum_mode='sum', extra_inp=[]):
     """ Element-wise features from the pair fed to an MLP. """
     linear = Activation('linear')
-
     if sum_mode == 'absdiff':
+        absdiff = Lambda(function=lambda x: K.abs(x[0] - x[1]),
+                         output_shape=lambda shape: shape[0])
         # model.add_node(name=pfx+'sum', layer=absdiff_merge(model, inputs))
-        absdiff_merge(model, inputs, pfx, "sum")
-    else:
+        mlp_inputs = absdiff(inputs)
+    elif sum_mode == 'sum':
         outsum = linear(add(inputs))
-    outmul = linear(multiply(inputs))
-    mlp_inputs = [outsum, outmul] + extra_inp
+        outmul = linear(multiply(inputs))
+        mlp_inputs = [outsum, outmul] + extra_inp
 
     def mlp_args(mlp_inputs):
         """ return model.add_node() args that are good for mlp_inputs list
         of both length 1 and more than 1. """
-        if len(mlp_inputs) > 1:
+        if isinstance(mlp_inputs, list):
             mlp_inputs = concatenate(mlp_inputs)
         return mlp_inputs
 
@@ -278,13 +281,11 @@ def mlp_ptscorer(inputs, Ddim, N, l2reg, pfx='out', Dinit='glorot_uniform', sum_
         Ddim = [Ddim]
     if Ddim:
         for i, D in enumerate(Ddim):
-
             mlp_inputs = Dense(int(N*D), activation='tanh', kernel_initializer=Dinit, kernel_regularizer=l2(l2reg))(mlp_args(mlp_inputs))
             # model.add_node(name=pfx+'hdn[%d]'%(i,),
             #                layer=Dense(output_dim=int(N*D), W_regularizer=l2(l2reg), activation='tanh', init=Dinit),
             #                **mlp_args(mlp_inputs))
             # mlp_inputs = [pfx+'hdn[%d]'%(i,)]
-
     outmlp = Dense(1, kernel_regularizer=l2(l2reg))(mlp_inputs)
     return outmlp
 
@@ -302,12 +303,10 @@ def cat_ptscorer(model, inputs, Ddim, N, l2reg, pfx='out', extra_inp=[]):
     return pfx+'cat'
 
 
-
-def absdiff_merge(model, inputs, pfx="out", layer_name="absdiff"):
+'''
+def absdiff_merge(inputs):
     """ Merging two layers into one, via element-wise subtraction and then taking absolute value.
-
     Example of usage: layer_name = absdiff_merge(model, inputs=["e0", "e1"])
-
     TODO: The more modern way appears to be to use "join" merge mode and Lambda layer.
     """
     if len(inputs) != 2:
@@ -319,11 +318,13 @@ def absdiff_merge(model, inputs, pfx="out", layer_name="absdiff"):
     def output_shape(input_shapes):
         return input_shapes[0]
 
-    full_name = "%s%s" % (pfx, layer_name)
-    model.add_node(name=layer_name, inputs=inputs,
-                   layer=Lambda([model.nodes[l] for l in inputs], diff, output_shape))
-    return full_name
-
+#    full_name = "%s%s" % (pfx, layer_name)
+    absdiff = Lambda(function=diff, output_shape=output_shape)
+#    model.add_node(name=layer_name, inputs=inputs,
+#                   layer=Lambda([model.nodes[l] for l in inputs], diff, output_shape))
+    outputs = absdiff(inputs)
+    return outputs
+'''
 
 def dot_time_distributed_merge(model, layers, cos_norm=False):
     """ Merging two time series layers into one, producing a new time series that
@@ -351,24 +352,3 @@ def dot_time_distributed_merge(model, layers, cos_norm=False):
 
     return Lambda([model.nodes[l] for l in layers], lmb,
                        lambda s: (s[1][0], s[1][1]))
-
-'''
-if __name__ == "__main__":
-    si0 = Input(name='si0', shape=(60,), dtype='int32')
-    se0 = Input(name='se0', shape=(60, 300), dtype='int32')
-    si1 = Input(name='si1', shape=(60,), dtype='int32')
-    se1 = Input(name='se1', shape=(60, 300), dtype='int32')
-    x = [si0, si1]
-    N, embedding = embedding(x, None, None, 60, 60, 0, 1/2,trainable=True, add_flags=True, create_inputs=True)
-    print(N)
-    y = embedding([si0,si1])
-    model = Model(inputs=x,outputs=y)
-'''
-   
-
-
-
-
-
-
-
