@@ -82,14 +82,11 @@ class STSTask(AbstractTask):
                                        self.c['inp_e_dropout'], self.c['inp_w_dropout'], 
                                        add_flags=self.c['e_add_flags'])
         embedded = embedding(inputs)
-        print(embedding.get_output_shape_at(0))
-        print(embedded)
-        print(N_emb)
+
         # Sentence-aggregate embeddings
 
         # model_block = module_prep_model(N_emb, self.s0pad, self.s1pad, self.c)
         # outputs = model_block(embedded)
-
         TDLayer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0], ) + shape[2:])
         e0b = TDLayer(embedded[0])
         e1b = TDLayer(embedded[1])
