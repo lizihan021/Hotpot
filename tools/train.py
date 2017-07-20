@@ -96,7 +96,7 @@ def train_model(runid, model, task, c):
         model.save_weights('weights-'+runid+'-bestval.h5', overwrite=True)
     model.load_weights('weights-'+runid+'-bestval.h5')
 
-
+# used to build model and then call train_model
 def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
     print('Model')
     model = task.build_model(module_prep_model)
