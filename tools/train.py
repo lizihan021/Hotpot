@@ -3,9 +3,9 @@
 Train a KeraSTS model on the given task, save the trained model
 to a weights file and evaluate it on a validation set.
 
-Usage: tools/train.py MODEL TASK TRAINDATA VALDATA [PARAM=VALUE]...
+Usage: python3 tools/train.py MODEL TASK TRAINDATA VALDATA [PARAM=VALUE]...
 
-Example: tools/train.py cnn para data/para/msr/msr-para-train.tsv data/para/msr/msr-para-val.tsv inp_e_dropout=1/2
+Example: python3 tools/train.py cnn para data/para/msr/msr-para-train.tsv data/para/msr/msr-para-val.tsv inp_e_dropout=1/2
 
 Parameters are mostly task-specific and model-specific, see the
 respective config() routines.  The training process itslef is
@@ -13,7 +13,7 @@ influenced by:
 
     * batch_size=N denotes number of samples per batch
 
-    * nb_epoch=N denotes maximum number of epochs (tasks will
+    * epochs=N denotes maximum number of epochs (tasks will
       typically include a val-dependent early stopping mechanism too)
 
     * nb_runs=N denotes number of re-trainings to attempt (1 by default);
@@ -56,20 +56,21 @@ from pysts.hyperparam import hash_params
 import models  # importlib python3 compatibility requirement
 import tasks
 
-# Unused imports for evaluating commandline params
+# TODO Unused imports for evaluating commandline params
 from keras.layers.recurrent import SimpleRNN, GRU, LSTM
 from keras.optimizers import *
 from pysts.kerasts.objectives import ranknet, ranksvm, cicerons_1504
 import pysts.kerasts.blocks as B
 from tasks import default_config
 
+
 # return the config combined by model_config and task_config
 def config(model_config, task_config, params):
-    c = default_config(model_config, task_config)
+    c = default_config(model_config, task_config) # by default, model_config > task_config
 
     for p in params:
-        k, v = p.split('=')
-        c[k] = eval(v)
+        keyword, value = p.split('=')
+        c[keyword] = eval(value)
 
     ps, h = hash_params(c)
 
@@ -95,12 +96,12 @@ def train_model(runid, model, task, c):
         model.save_weights('weights-'+runid+'-bestval.h5', overwrite=True)
     model.load_weights('weights-'+runid+'-bestval.h5')
 
-
-def train_and_eval(runid, module_prep_model, task, c, do_eval=True):
+# used to build model and then call train_model
+def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
     print('Model')
     model = task.build_model(module_prep_model)
 
-    train_model(runid, model, task, c)
+    train_model(runid, model, task, conf)
 
     if do_eval:
         print('Predict&Eval (best val epoch)')
@@ -111,7 +112,7 @@ def train_and_eval(runid, module_prep_model, task, c, do_eval=True):
 
 
 if __name__ == "__main__":
-    modelname, taskname, trainf, valf = sys.argv[1:5]
+    modelname, taskname, trainfile, valfile = sys.argv[1:5]
     params = sys.argv[5:]
 
     model_module = importlib.import_module('.'+modelname, 'models')
@@ -126,9 +127,9 @@ if __name__ == "__main__":
         task.emb = emb.GloVe(N=conf['embdim'])
 
     print('Dataset')
-    if 'vocabf' in conf:
+    if 'vocabf' in conf: # TODO
         task.load_vocab(conf['vocabf'])
-    task.load_data(trainf, valf)
+    task.load_data(trainfile, valfile)
     print('Dataset loaded')
     for i_run in range(conf['nb_runs']):
         if conf['nb_runs'] == 1:

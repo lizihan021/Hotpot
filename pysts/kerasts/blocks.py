@@ -17,7 +17,7 @@ from keras.regularizers import l2
 import pysts.nlp as nlp
 
 
-def embedding(glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
+def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
               trainable=True, add_flags=True, create_inputs=True):
     """ The universal sequence input layer.
 
@@ -60,16 +60,16 @@ def embedding(glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     emb = vocab.embmatrix(glove)
     emb = Embedding(input_dim=emb.shape[0], input_length=s1pad, output_dim=glove.N,
                   mask_zero=True, weights=[emb], trainable=trainable,
-                          dropout=dropout_w, name='emb')
-    e0_0 = emb(si0)
-    e1_0 = emb(si1)
+                          dropout=dropout_w, name='emb') # TODO no longer support
+    e0_0 = emb(inputs[0])
+    e1_0 = emb(inputs[2])
     linear = Activation('linear')
-    e0_1 = linear(add([e0_0, se0]))
-    e1_1 = linear(add([e1_0, se1]))
+    e0_1 = linear(add([e0_0, inputs[1]]))
+    e1_1 = linear(add([e1_0, inputs[3]]))
     eputs = [e0_1, e1_1]
     if add_flags:
-        e0_f = linear(concatenate([e0_1, f0]))
-        e1_f = linear(concatenate([e1_1, f1]))
+        e0_f = linear(concatenate([e0_1, inputs[4]]))
+        e1_f = linear(concatenate([e1_1, inputs[5]]))
         eputs = [e0_f, e1_f]
         N_emb = glove.N + nlp.flagsdim
     else:
@@ -89,8 +89,8 @@ def embedding(glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     model.add_node(name='e0[1]', inputs=['e0[0]', 'se0'], merge_mode='sum', layer=Activation('linear'))
     model.add_node(name='e1[1]', inputs=['e1[0]', 'se1'], merge_mode='sum', layer=Activation('linear'))
     '''
-
-    embedding = Model(inputs=inputs, outputs=[e0, e1], name='embedding_block')
+    embedding = [e0, e1]
+###    embedding = Model(inputs=inputs, outputs=[e0, e1], name='embedding_block')
     '''
     if add_flags:
         for m in [0, 1]:
