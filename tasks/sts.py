@@ -79,7 +79,7 @@ class STSTask(AbstractTask):
             inputs = [si0, se0, si1, se1, f0, f1]
 
         # embedding block     
-        embedded, N_emb = blocks.embedding(self.emb, self.vocab, self.s0pad, self.s1pad,
+        embedded, N_emb = blocks.embedding(inputs, self.emb, self.vocab, self.s0pad, self.s1pad,
                                        self.c['inp_e_dropout'], self.c['inp_w_dropout'], 
                                        add_flags=self.c['e_add_flags'], create_inputs=False)
 

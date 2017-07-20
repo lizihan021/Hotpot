@@ -17,7 +17,7 @@ from keras.regularizers import l2
 import pysts.nlp as nlp
 
 
-def embedding(glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
+def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
               trainable=True, add_flags=True, create_inputs=True):
     """ The universal sequence input layer.
 
@@ -61,15 +61,15 @@ def embedding(glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     emb = Embedding(input_dim=emb.shape[0], input_length=s1pad, output_dim=glove.N,
                   mask_zero=True, weights=[emb], trainable=trainable,
                           dropout=dropout_w, name='emb') # TODO no longer support
-    e0_0 = emb(si0)
-    e1_0 = emb(si1)
+    e0_0 = emb(inputs[0])
+    e1_0 = emb(inputs[2])
     linear = Activation('linear')
-    e0_1 = linear(add([e0_0, se0]))
-    e1_1 = linear(add([e1_0, se1]))
+    e0_1 = linear(add([e0_0, inputs[1]]))
+    e1_1 = linear(add([e1_0, inputs[3]]))
     eputs = [e0_1, e1_1]
     if add_flags:
-        e0_f = linear(concatenate([e0_1, f0]))
-        e1_f = linear(concatenate([e1_1, f1]))
+        e0_f = linear(concatenate([e0_1, inputs[4]]))
+        e1_f = linear(concatenate([e1_1, inputs[5]]))
         eputs = [e0_f, e1_f]
         N_emb = glove.N + nlp.flagsdim
     else:
