@@ -12,5 +12,8 @@
 /weights/
 /tools/weights-ntb.h5
 
+*/.DS_Store
 */*.swp
 */*.swo
+*/*/*.swp
+*/*/*.swo
