@@ -83,7 +83,7 @@ class STSTask(AbstractTask):
                                        self.c['inp_e_dropout'], self.c['inp_w_dropout'], 
                                        add_flags=self.c['e_add_flags'], create_inputs=False)
 
-        # Sentence-aggregate embeddings
+        # Sentence-aggregate embeddings 
 
         # model_block = module_prep_model(N_emb, self.s0pad, self.s1pad, self.c)
         # outputs = model_block(embedded)
