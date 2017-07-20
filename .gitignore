@@ -1,9 +1,9 @@
 .*
 !.gitignore
 */*.pyc
-*/__pycache__/
-*/*/*.pyc
-*/*/__pycache__/
+*/__pycache__
+pysts/kerasts/*.pyc
+pysts/kerasts/__pycache__/
 
 /glove.6B.*d.txt
 /*weights*.h5
@@ -15,5 +15,5 @@
 */.DS_Store
 */*.swp
 */*.swo
-*/*/*.swp
-*/*/*.swo
+pysts/kerasts/*.swp
+pysts/kerasts/*.swo
