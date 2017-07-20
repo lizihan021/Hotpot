@@ -76,10 +76,10 @@ def prep_model(embedded, N_emb, s0pad, s1pad, c):
     # TODO Projection
     if c['project']:
         proj = Dense(int(N_emb*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
-        e0p = proj(bow_last[0])
-        e1p = proj(bow_last[1])
+        e0b = proj(bow_last[0])
+        e1b = proj(bow_last[1])
 
-        return [e0p, e1p]
+        return [e0b, e1b]
     else:
         return bow_last
 
