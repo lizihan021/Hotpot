@@ -64,6 +64,9 @@ def stat(niter, fname, qty, r, alpha=0.95, bonferroni=1.):
 
 if __name__ == "__main__":
     modelname, taskname, trainf, valf, testf = sys.argv[1:6]
+    print('Train file: ', trainf)
+    print('Val file: ', valf)
+    print('Test file: ', testf)
     g = ([], [])
     g_i = 0
     for p in sys.argv[6:]:
@@ -108,7 +111,7 @@ if __name__ == "__main__":
         print(weightf)
         model.load_weights(weightf)
 
-        print('Predict&Eval (best val epoch)')
+        print('Predict & Eval (best val epoch)')
         resT, resv, rest = task.eval(model)
         if resT is not None:
             res[trainf].append(resT)
