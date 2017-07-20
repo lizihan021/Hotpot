@@ -60,8 +60,8 @@ class STSTask(AbstractTask):
         si0, sj0 = vocab.vectorize(s0, self.emb, spad=self.s0pad)
         si1, sj1 = vocab.vectorize(s1, self.emb, spad=self.s1pad)
         f0, f1 = nlp.sentence_flags(s0, s1, self.s0pad, self.s1pad)
-        # gr = graph_input_sts(si0, si1, sj0, sj1, y, f0, f1, s0, s1)
-        gr = graph_input_sts(si0, si1, sj0, sj1, y, f0, f1)
+        gr = graph_input_sts(si0, si1, sj0, sj1, y, f0, f1, s0, s1)
+        # gr = graph_input_sts(si0, si1, sj0, sj1, y, f0, f1)
         return (gr, y, vocab)
 
     def prep_model(self, module_prep_model):
@@ -84,10 +84,7 @@ class STSTask(AbstractTask):
                                        add_flags=self.c['e_add_flags'], create_inputs=False)
 
         # Sentence-aggregate embeddings 
-
-        # model_block = module_prep_model(N_emb, self.s0pad, self.s1pad, self.c)
-        # outputs = model_block(embedded)
-       
+        # final_outputs are two vectors representing s1 and s2
         final_outputs = module_prep_model(embedded, N_emb,self.s0pad,self.s1pad,self.c)
         # Measurement
         
