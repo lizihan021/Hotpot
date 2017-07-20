@@ -89,8 +89,8 @@ def embedding(glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     model.add_node(name='e0[1]', inputs=['e0[0]', 'se0'], merge_mode='sum', layer=Activation('linear'))
     model.add_node(name='e1[1]', inputs=['e1[0]', 'se1'], merge_mode='sum', layer=Activation('linear'))
     '''
-
-    embedding = Model(inputs=inputs, outputs=[e0, e1], name='embedding_block')
+    embedding = [e0, e1]
+###    embedding = Model(inputs=inputs, outputs=[e0, e1], name='embedding_block')
     '''
     if add_flags:
         for m in [0, 1]:

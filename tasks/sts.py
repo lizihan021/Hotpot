@@ -12,13 +12,13 @@ from __future__ import division
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import Activation, Dense, Input, Lambda
 from keras.models import Model
-from keras import backend as K
+from keras import backend as backend
 from keras.regularizers import l2
 import numpy as np
 
 import pysts.eval as ev
 from pysts.kerasts import graph_input_sts
-import pysts.kerasts.blocks as B
+import pysts.kerasts.blocks as blocks
 from pysts.kerasts.callbacks import STSPearsonCB
 from pysts.kerasts.objectives import pearsonobj
 import pysts.loader as loader
@@ -38,7 +38,7 @@ class STSTask(AbstractTask):
         self.vocab = None
 
     def config(self, c):
-        c['ptscorer'] = B.dot_ptscorer
+        c['ptscorer'] = blocks.dot_ptscorer
 
         c['loss'] = pearsonobj  # ...or 'categorical_crossentropy'
         c['epochs'] = 32
@@ -66,11 +66,12 @@ class STSTask(AbstractTask):
 
     def prep_model(self, module_prep_model):
         # Input embedding and encoding
+        
         # model inputs   
-        si0 = Input(name='si0', shape=(self.s0pad,), dtype='int32')
-        se0 = Input(name='se0', shape=(self.s0pad,self.emb.N))
-        si1 = Input(name='si1', shape=(self.s1pad,), dtype='int32')
-        se1 = Input(name='se1', shape=(self.s1pad,self.emb.N))
+        si0 = Input(name='si0', shape=(self.s0pad, ), dtype='int32')
+        se0 = Input(name='se0', shape=(self.s0pad, self.emb.N))
+        si1 = Input(name='si1', shape=(self.s1pad, ), dtype='int32')
+        se1 = Input(name='se1', shape=(self.s1pad, self.emb.N))
         inputs = [si0, se0, si1, se1]
         if self.c['e_add_flags']:
             f0 = Input(name='f0', shape=(self.s0pad, nlp.flagsdim))
@@ -78,33 +79,29 @@ class STSTask(AbstractTask):
             inputs = [si0, se0, si1, se1, f0, f1]
 
         # embedding block     
-        embedding, N_emb = B.embedding(self.emb, self.vocab, self.s0pad, self.s1pad,
+        embedded, N_emb = blocks.embedding(self.emb, self.vocab, self.s0pad, self.s1pad,
                                        self.c['inp_e_dropout'], self.c['inp_w_dropout'], 
                                        add_flags=self.c['e_add_flags'])
-        embedded = embedding(inputs)
 
         # Sentence-aggregate embeddings
 
         # model_block = module_prep_model(N_emb, self.s0pad, self.s1pad, self.c)
         # outputs = model_block(embedded)
-        TDLayer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0], ) + shape[2:])
-        e0b = TDLayer(embedded[0])
-        e1b = TDLayer(embedded[1])
-        final_outputs = [e0b, e1b]
-
+       
+        final_outputs = module_prep_model(embedded, N_emb,self.s0pad,self.s1pad,self.c)
         # Measurement
         
         if self.c['ptscorer'] == '1':
             # special scoring mode just based on the answer
             # (assuming that the question match is carried over to the answer
             # via attention or another mechanism)
-            ptscorer = B.cat_ptscorer
+            ptscorer = blocks.cat_ptscorer
             final_outputs = [final_outputs[1]]
         else:
             ptscorer = self.c['ptscorer']
         
         kwargs = dict()
-        if ptscorer == B.mlp_ptscorer:
+        if ptscorer == blocks.mlp_ptscorer:
             kwargs['sum_mode'] = self.c['mlpsum']
             kwargs['Dinit'] = self.c['Dinit']
 
@@ -116,17 +113,20 @@ class STSTask(AbstractTask):
         
         model = Model(inputs=inputs, outputs=outS)
         return model
+###      return inputs, outS
 
     def build_model(self, module_prep_model, do_compile=True):
-        if self.c['ptscorer'] is None:
+        if self.c['ptscorer'] is None:    # TODO
             # non-neural model
             return module_prep_model(self.vocab, self.c, output='classes')
 
         model = self.prep_model(module_prep_model)
+###     inputs, outS = self.prep_model(module_prep_model)
+###     model = Model(inputs=inputs, outputs=outS)
 
         for lname in self.c['fix_layers']:
             model.nodes[lname].trainable = False
-
+###     要么就放在train.py的train_model下compile
         if do_compile:
             model.compile(loss=self.c['loss'], optimizer=self.c['opt'])
         return model
