@@ -27,10 +27,10 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-
-from keras.layers import TimeDistributed, Dense, Lambda, Input
 from keras.models import Model
+from keras.layers import TimeDistributed, Dense, Lambda, Input
 from keras import backend as K
+from keras.regularizers import l2
 
 import pysts.kerasts.blocks as B
 
@@ -60,16 +60,29 @@ def config(c):
     c['Ddim'] = 1
 
 
-def prep_model(N_emb, s0pad, s1pad, c):
-    
-    e0 = Input(name='e0', shape=(s0pad, N_emb))
-    e1 = Input(name='e1', shape=(s1pad, N_emb))
-    winputs = [e0, e1]
-
+def prep_model(embedded, N_emb, s0pad, s1pad, c):
     TDLayer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0], ) + shape[2:])
-    e0b = TDLayer(e0)
-    e1b = TDLayer(e1)
+    e0b = TDLayer(embedded[0])
+    e1b = TDLayer(embedded[1])
     bow_last = [e0b, e1b]
-    # bow_last = [e0, e1]
-    model = Model(inputs=winputs, outputs=bow_last)
-    return model
+    
+    # TODO Deep
+    for i in range(c['deep']):
+        deepD1 = Dense(N_emb, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep[%d]'%(i,))
+        bow_next_0 = deepD1(bow_last[0])
+        bow_next_1 = deepD1(bow_last[1])
+        bow_last = [bow_next_0, bow_next_1]
+
+    # TODO Projection
+    if c['project']:
+        proj = Dense(int(N_emb*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
+        e0p = proj(bow_last[0])
+        e1p = proj(bow_last[1])
+
+        return [e0p, e1p]
+    else:
+        return bow_last
+
+
+
+
