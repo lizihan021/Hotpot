@@ -1,9 +1,9 @@
 .*
 !.gitignore
 */*.pyc
-*/__pycache__
+*/__pycache__/*
 pysts/kerasts/*.pyc
-pysts/kerasts/__pycache__/
+pysts/kerasts/__pycache__/*
 
 /glove.6B.*d.txt
 /*weights*.h5
