@@ -56,7 +56,7 @@ def config(c):
     c['inp_w_dropout'] = 0
     # anssel-specific:
     c['ptscorer'] = B.mlp_ptscorer
-    c['mlpsum'] = 'absdiff'
+    c['mlpsum'] = 'sum'
     c['Ddim'] = 1
 
 
