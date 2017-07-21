@@ -49,7 +49,7 @@ class PermutationSearch:
 
     def __call__(self):
         for v in product(*self.params.values()):
-            pardict = dict(zip(d, v))
+            pardict = dict(zip(self.params, v))
             ps, h = hash_params(pardict)
             yield (ps, h, pardict)
 
