@@ -63,11 +63,11 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
                     mask_zero=True, weights=[emb], trainable=trainable, name='emb') # TODO weights?
 
     dropout1 = Dropout(dropout_w, name='embdrop_w')
-    e0_0 = dropout1(emb(inputs[0]))
-    e1_0 = dropout1(emb(inputs[2]))
+    e0_0 = dropout1(emb(inputs[0])) # si0
+    e1_0 = dropout1(emb(inputs[2])) # si1
     linear = Activation('linear')
-    e0_1 = linear(add([e0_0, inputs[1]]))
-    e1_1 = linear(add([e1_0, inputs[3]]))
+    e0_1 = linear(add([e0_0, inputs[1]])) # se0 
+    e1_1 = linear(add([e1_0, inputs[3]])) # se1
     eputs = [e0_1, e1_1]
     if add_flags:
         e0_f = linear(concatenate([e0_1, inputs[4]]))
