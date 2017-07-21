@@ -83,7 +83,7 @@ class STSTask(AbstractTask):
 
         # Sentence-aggregate embeddings 
         # final_outputs are two vectors representing s1 and s2
-        final_outputs = module_prep_model(embedded, N_emb, self.s0pad, self.s1pad, self.c)
+        final_outputs, N = module_prep_model(embedded, N_emb, self.s0pad, self.s1pad, self.c)
 
         # Measurement        
         if self.c['ptscorer'] == '1':    # TODO ??
@@ -100,7 +100,7 @@ class STSTask(AbstractTask):
             kwargs['sum_mode'] = self.c['mlpsum']
             kwargs['Dinit'] = self.c['Dinit']
 
-        scoreS = Activation('linear')(ptscorer(final_outputs, self.c['Ddim'], N_emb, self.c['l2reg'], **kwargs))
+        scoreS = Activation('linear')(ptscorer(final_outputs, self.c['Ddim'], N, self.c['l2reg'], **kwargs))
         out = Dense(6, kernel_regularizer=l2(self.c['l2reg']))(scoreS)
         outS = Activation('softmax')(out)
         
@@ -119,7 +119,6 @@ class STSTask(AbstractTask):
 
         for lname in self.c['fix_layers']:  # TODO
             model.nodes[lname].trainable = False
-###     要么就放在train.py的train_model下compile
         if do_compile:
             model.compile(loss=self.c['loss'], optimizer=self.c['opt'])
         return model

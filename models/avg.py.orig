@@ -88,4 +88,12 @@ def prep_model(inputs, N, s0pad, s1pad, c):
         N = N*c['pdim']
         return [e0b, e1b], N 
     else:
+<<<<<<< HEAD
+        return bow_last
+=======
         return bow_last, N
+
+
+
+
+>>>>>>> 8c366e7ca57ccc411007a596a7a67732fa265535
