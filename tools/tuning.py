@@ -73,6 +73,7 @@ if __name__ == "__main__":
             tuneargs[k] = v
 
     # rs = RandomSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
+    # Permutation does not support dict argument like "cdim"
     rs = PermutationSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
 
     for ps, h, pardict in rs():

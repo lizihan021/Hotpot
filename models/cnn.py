@@ -16,7 +16,7 @@ refer to the dataset-sts GitHub repo, please.
 from __future__ import print_function
 from __future__ import division
 
-from keras.layers.core import Activation, Dense, Dropout
+from keras.layers import Activation, Dense, Dropout
 from keras.regularizers import l2
 
 import pysts.kerasts.blocks as B
@@ -44,7 +44,7 @@ def config(c):
     c['Ddim'] = 1
 
 
-def prep_model(model, N, s0pad, s1pad, c):
+def prep_model(inputs, N, s0pad, s1pad, c):
     Nc = B.cnnsum_input(model, N, s0pad, siamese=c['cnnsiamese'],
                         dropout=c['dropout'], l2reg=c['l2reg'],
                         cnninit=c['cnninit'], cnnact=c['cnnact'], cdim=c['cdim'])

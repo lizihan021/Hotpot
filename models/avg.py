@@ -27,8 +27,7 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-from keras.models import Model
-from keras.layers import TimeDistributed, Dense, Lambda, Input
+from keras.layers import Dense, Lambda
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -83,7 +82,3 @@ def prep_model(inputs, N, s0pad, s1pad, c):
         return [e0b, e1b]
     else:
         return bow_last
-
-
-
-
