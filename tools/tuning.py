@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Tune hyperparametesearch_para of a KeraSTS model on the given task, that is
+Tune hyperparameters of a KeraSTS model on the given task, that is
 train + evaluate the model with many different randomly samples config
 settings.
 
@@ -16,7 +16,7 @@ That is, the VALUESET is array of possible values for the given parameter;
 in case the parameter takes a dict, it is a dict of key-valuesets.
 
 TODO use spearmint or something for non-random sampling and estimation
-of influence of different parametesearch_para on performance
+of influence of different parameters on performance
 """
 
 from __future__ import print_function
@@ -35,7 +35,7 @@ import tasks
 from train import config, train_and_eval
 
 # Unused imports for evaluating commandline params
-from keras.layesearch_para.recurrent import SimpleRNN, GRU, LSTM
+from keras.layers.recurrent import SimpleRNN, GRU, LSTM
 from pysts.kerasts.objectives import ranknet, ranksvm, cicerons_1504
 import pysts.kerasts.blocks as B
 
@@ -71,10 +71,10 @@ if __name__ == "__main__":
         if isinstance(v, list) or isinstance(v, dict):
             tuneargs[k] = v
 
-    # search_para = RandomSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
-    search_para = PermutationSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
+    rs = RandomSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
+    rs = PermutationSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
 
-    for ps, h, pardict in search_para():
+    for ps, h, pardict in rs():
         # final config for this run
         conf, ps, h = config(model_module.config, task.config, [])
         for k, v in pardict.items():
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
         try:
             model, res = train_and_eval(runid, model_module.prep_model, task, conf)
-            search_para.report(ps, h, res[1])
+            rs.report(ps, h, res[1])
         except Exception as e:
             print(e)
             time.sleep(1)
