@@ -8,6 +8,7 @@ from __future__ import print_function
 import json
 import random
 
+from itertools import product 
 
 def hash_params(pardict):
     ps = json.dumps(dict([(k, str(v)) for k, v in pardict.items()]), sort_keys=True)
@@ -40,3 +41,19 @@ class RandomSearch:
     def report(self, ps, h, res):
         print('%s .. %x .. %s' % (res, h, ps), file=self.rlog)
         self.rlog.flush()
+
+class PermutationSearch:
+    def __init__(self, logfile, **params):
+        self.params = params
+        self.rlog = open(logfile, 'a')
+
+    def __call__(self):
+        for v in product(*self.params.values()):
+            pardict = dict(zip(d, v))
+            ps, h = hash_params(pardict)
+            yield (ps, h, pardict)
+
+    def report(self, ps, h, res):
+        print('%s .. %x .. %s' % (res, h, ps), file=self.rlog)
+        self.rlog.flush()
+
