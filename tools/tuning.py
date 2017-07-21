@@ -11,6 +11,7 @@ Example:
         "dropout=[1/2, 2/3, 3/4]" "inp_e_dropout=[1/2, 3/4, 4/5]" "l2reg=[1e-4, 1e-3, 1e-2]" \
         "project=[True, True, False]" "cnnact=['tanh', 'relu']" \
         "cdim={1: [0,0,1/2,1,2], 2: [0,0,1/2,1,2,0], 3: [0,0,1/2,1,2,0], 4: [0,0,1/2,1,2,0], 5: [0,0,1/2,1,2]},"
+        # notice, only randomSearch support dict argument like "cdim", permutation does not support. 
 
 That is, the VALUESET is array of possible values for the given parameter;
 in case the parameter takes a dict, it is a dict of key-valuesets.
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         if isinstance(v, list) or isinstance(v, dict):
             tuneargs[k] = v
 
-    rs = RandomSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
+    # rs = RandomSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
     rs = PermutationSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
 
     for ps, h, pardict in rs():
