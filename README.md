@@ -1,4 +1,4 @@
-Semantic Text Similarity Dataset Hub
+Semantic Text Similarity Dataset Hotpot
 ====================================
 
 A typical NLP machine learning task involves classifying a sequence of tokens
