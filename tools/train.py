@@ -92,7 +92,7 @@ def train_model(runid, model, task, c):
                    batch_size=c['batch_size'], epochs=c['epochs'],
                    **fit_kwargs)
     # model.save_weights('weights-'+runid+'-final.h5', overwrite=True)
-    if c['ptscorer'] is None: # TODO?
+    if c['ptscorer'] is None:
         model.save_weights('weights-'+runid+'-bestval.h5', overwrite=True)
     model.load_weights('weights-'+runid+'-bestval.h5')
 
@@ -112,7 +112,7 @@ def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
 
 
 if __name__ == "__main__":
-    modelname, taskname, trainfile, valfile = sys.argv[1:5]
+    modelname, taskname, trainf, valf = sys.argv[1:5]
     params = sys.argv[5:]
 
     model_module = importlib.import_module('.'+modelname, 'models')
@@ -121,15 +121,15 @@ if __name__ == "__main__":
     conf, ps, h = config(model_module.config, task.config, params)
     task.set_conf(conf)
 
-    # TODO configurable embedding class
+    # configurable embedding class
     if conf['embdim'] is not None:
         print('GloVe')
         task.emb = emb.GloVe(N=conf['embdim'])
 
     print('Dataset')
-    if 'vocabf' in conf: # TODO
+    if 'vocabf' in conf: 
         task.load_vocab(conf['vocabf'])
-    task.load_data(trainfile, valfile)
+    task.load_data(trainf, valf)
     print('Dataset loaded')
     for i_run in range(conf['nb_runs']):
         if conf['nb_runs'] == 1:
