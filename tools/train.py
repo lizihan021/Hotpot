@@ -88,13 +88,13 @@ def train_model(runid, model, task, c):
     else:
         n_samples = len(task.gr['classes'])
     fit_kwargs['steps_per_epoch'] = int(n_samples * c['epoch_fract'])
-    task.fit_model(model, weightsf='weights-'+runid+'-bestval.h5',
+    task.fit_model(model, weightsf='weights/weights-'+runid+'-bestval.h5',
                    batch_size=c['batch_size'], epochs=c['epochs'],
                    **fit_kwargs)
     # model.save_weights('weights-'+runid+'-final.h5', overwrite=True)
     if c['ptscorer'] is None:
-        model.save_weights('weights-'+runid+'-bestval.h5', overwrite=True)
-    model.load_weights('weights-'+runid+'-bestval.h5')
+        model.save_weights('weights/weights-'+runid+'-bestval.h5', overwrite=True)
+    model.load_weights('weights/weights-'+runid+'-bestval.h5')
 
 # used to build model and then call train_model
 def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
