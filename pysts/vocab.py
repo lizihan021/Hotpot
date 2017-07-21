@@ -63,7 +63,7 @@ class Vocabulary:
                     si.append(self.word_idx[t])
                     sj.append(0)
                 elif emb is not None and t in emb.w:
-                    si.append(0)
+                    si.append(0)    # TODO
                     sj.append(emb.w[t])
                 else:
                     si.append(1)  # OOV
