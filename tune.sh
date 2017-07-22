@@ -1,8 +1,8 @@
 #! /bin/bash
 python3 tools/tuning.py avg sts data/all/2015.train.tsv data/all/2015.val.tsv \
-		embprune=100
-python3 tools/tuning.py avg sts data/all/2015.train.tsv data/all/2015.val.tsv \
 		embprune=200
+python3 tools/tuning.py avg sts data/all/2015.train.tsv data/all/2015.val.tsv \
+		embprune=100
 python3 tools/tuning.py avg sts data/all/2015.train.tsv data/all/2015.val.tsv \
 		embicase=True
 python3 tools/tuning.py avg sts data/all/2015.train.tsv data/all/2015.val.tsv \

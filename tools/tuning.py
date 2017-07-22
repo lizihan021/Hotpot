@@ -54,7 +54,6 @@ if __name__ == "__main__":
     # directly wasn't specified as a tunable.)
     conf, ps, h = config(model_module.config, task.config, params)
     task.set_conf(conf)
-
     # TODO configurable embedding class
     if conf['embdim'] is not None:
         print('GloVe')
@@ -71,6 +70,8 @@ if __name__ == "__main__":
         v = eval(v)
         if isinstance(v, list) or isinstance(v, dict):
             tuneargs[k] = v
+        elif isinstance(v, int) or isinstance(v, string):
+            tuneargs[k] = [v]
 
     # rs = RandomSearch(modelname+'_'+taskname+'_log.txt', **tuneargs)
     # Permutation does not support dict argument like "cdim"

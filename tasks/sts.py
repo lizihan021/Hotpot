@@ -85,15 +85,8 @@ class STSTask(AbstractTask):
         # final_outputs are two vectors representing s1 and s2
         final_outputs, N = module_prep_model(embedded, N_emb, self.s0pad, self.s1pad, self.c)
 
-        # Measurement        
-        if self.c['ptscorer'] == '1':    # TODO ??
-            # special scoring mode just based on the answer
-            # (assuming that the question match is carried over to the answer
-            # via attention or another mechanism)
-            ptscorer = B.cat_ptscorer
-            final_outputs = [final_outputs[1]]
-        else:
-            ptscorer = self.c['ptscorer']
+        # Measurement 
+        ptscorer = self.c['ptscorer']
         
         kwargs = dict()
         if ptscorer == B.mlp_ptscorer:
