@@ -75,7 +75,7 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     
     # Deep
     for i in range(c['deep']):
-        deepD1 = Dense(N, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep[%d]'%(i,))
+        deepD1 = Dense(N, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep_%d'%(i,))
         bow_next_0 = deepD1(bow_last[0])
         bow_next_1 = deepD1(bow_last[1])
         bow_last = [bow_next_0, bow_next_1]
