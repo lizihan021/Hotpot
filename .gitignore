@@ -17,3 +17,5 @@ pysts/kerasts/__pycache__/*
 */*.swo
 pysts/kerasts/*.swp
 pysts/kerasts/*.swo
+
+nohup.out
