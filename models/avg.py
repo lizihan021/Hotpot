@@ -35,7 +35,7 @@ import pysts.kerasts.blocks as B
 
 
 def config(c):
-    c['l2reg'] = 1e-5
+    c['l2reg'] = 1e-4
 
     # word-level projection before averaging
     c['wproject'] = True
@@ -51,8 +51,8 @@ def config(c):
     c['pact'] = 'tanh'
 
     # model-external:
-    c['inp_e_dropout'] = 1/3
-    c['inp_w_dropout'] = 0
+    c['inp_e_dropout'] = 1/2
+    c['inp_w_dropout'] = 1/3
     # anssel-specific:
     c['ptscorer'] = B.mlp_ptscorer
     c['mlpsum'] = 'sum'
