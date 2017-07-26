@@ -85,6 +85,10 @@ class STSTask(AbstractTask):
         # final_outputs are two vectors representing s1 and s2
         final_outputs, N = module_prep_model(embedded, N_emb, self.s0pad, self.s1pad, self.c)
 
+        if len(final_outputs) == 1:
+            out = Dense(6, kernel_regularizer=l2(self.c['l2reg']))(final_outputs[0])
+            outS = Activation('softmax')(out)
+            return Model(inputs=inputs, outputs=outS)
         # Measurement 
         ptscorer = self.c['ptscorer']
         
