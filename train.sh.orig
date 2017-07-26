@@ -1,0 +1,7 @@
+#! /bin/bash
+<<<<<<< HEAD
+python3 tools/train.py dnn sts data/all/2015.train.tsv \
+data/all/2015.val.tsv 
+=======
+python3 tools/train.py avg sts data/all/2015.train.tsv data/all/2015.val.tsv
+>>>>>>> ebe2d95b9efb761a12baa9645c1f1a3b5e1de627
