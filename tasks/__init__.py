@@ -2,8 +2,9 @@ from __future__ import print_function
 from __future__ import division
 
 import importlib
-from keras.layers.core import Activation
-from keras.models import Sequential
+from keras.layers import Activation, Dense, Input, Lambda
+from keras.models import Model
+
 import numpy as np
 import random
 import traceback
@@ -11,6 +12,7 @@ import traceback
 import pysts.loader as loader
 from pysts.kerasts import graph_input_slice, graph_input_prune
 import pysts.kerasts.blocks as B
+import pysts.nlp as nlp
 
 
 def default_config(model_config, task_config):
@@ -161,6 +163,8 @@ class AbstractTask(object):
         return gr
 
     def prep_model(self, module_prep_model, oact='sigmoid'):
+
+        """
         # Input embedding and encoding
         model = Sequential()
         N = B.embedding(model, self.emb, self.vocab, self.s0pad, self.s1pad,
@@ -170,6 +174,26 @@ class AbstractTask(object):
         final_outputs = module_prep_model(model, N, self.s0pad, self.s1pad, self.c)
 
         # Measurement
+        """
+        si0 = Input(name='si0', shape=(self.s0pad, ), dtype='int32')
+        se0 = Input(name='se0', shape=(self.s0pad, self.emb.N))
+        si1 = Input(name='si1', shape=(self.s1pad, ), dtype='int32')
+        se1 = Input(name='se1', shape=(self.s1pad, self.emb.N))
+        inputs = [si0, se0, si1, se1]
+        if self.c['e_add_flags']:
+            f0 = Input(name='f0', shape=(self.s0pad, nlp.flagsdim))
+            f1 = Input(name='f1', shape=(self.s1pad, nlp.flagsdim))
+            inputs = [si0, se0, si1, se1, f0, f1]
+
+        # embedding block
+        embedded, N_emb = B.embedding(inputs, self.emb, self.vocab, self.s0pad, self.s1pad,
+                                       self.c['inp_e_dropout'], self.c['inp_w_dropout'],
+                                       add_flags=self.c['e_add_flags'])
+
+        # Sentence-aggregate embeddings
+        # final_outputs are two vectors representing s1 and s2
+        final_outputs, N = module_prep_model(embedded, N_emb, self.s0pad, self.s1pad, self.c)
+  
 
         if self.c['ptscorer'] == '1':
             # special scoring mode just based on the answer
@@ -184,13 +208,18 @@ class AbstractTask(object):
         if ptscorer == B.mlp_ptscorer:
             kwargs['sum_mode'] = self.c['mlpsum']
             kwargs['Dinit'] = self.c['Dinit']
-        if 'f_add' in self.c:
+        if 'f_add' in self.c:  # TODO
             for inp in self.c['f_add']:
                 model.add_input(inp, input_shape=(1,))  # assumed scalar
             kwargs['extra_inp'] = self.c['f_add']
+
+        scoreS = Activation(oact)(ptscorer(final_outputs, self.c['Ddim'], N, self.c['l2reg'], **kwargs))
+        model = Model(inputs=inputs, outputs=scoreS)
+        """    
         model.add_node(name='scoreS', input=ptscorer(model, final_outputs, self.c['Ddim'], N, self.c['l2reg'], **kwargs),
                        layer=Activation(oact))
         model.add_output(name='score', input='scoreS')
+        """
         return model
 
     def fit_model(self, model, **kwargs):
