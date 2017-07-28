@@ -25,7 +25,7 @@ def graph_input_anssel(si0, si1, sj0, sj1, se0, se1, y, f0=None, f1=None, s0=Non
     """
     gr = {'si0': si0, 'si1': si1,
           'sj0': sj0, 'sj1': sj1,
-          'score': y}
+          'classes': y}
     if se0 is not None:
         gr['se0'] = se0
         gr['se1'] = se1
@@ -45,7 +45,7 @@ def graph_input_anssel(si0, si1, sj0, sj1, se0, se1, y, f0=None, f1=None, s0=Non
 
 def graph_nparray_anssel(gr):
     """ Make sure that what should be nparray is nparray. """
-    for k in ['si0', 'si1', 'sj0', 'sj1', 'se0', 'se1', 'f0', 'f1', 'score', 'kw', 'akw', 'bm25']:
+    for k in ['si0', 'si1', 'sj0', 'sj1', 'se0', 'se1', 'f0', 'f1', 'classes', 'kw', 'akw', 'bm25']:
         if k in gr:
             gr[k] = np.array(gr[k])
     return gr
