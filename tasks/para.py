@@ -15,7 +15,7 @@ import numpy as np
 
 import pysts.eval as ev
 from pysts.kerasts.callbacks import ParaCB
-from pysts.kerasts import graph_input_anssel
+from pysts.kerasts import graph_input_anssel, graph_nparray_anssel
 import pysts.loader as loader
 import pysts.nlp as nlp
 from pysts.vocab import Vocabulary
