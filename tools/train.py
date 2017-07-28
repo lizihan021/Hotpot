@@ -59,6 +59,7 @@ import tasks
 # TODO Unused imports for evaluating commandline params
 from keras.layers.recurrent import SimpleRNN, GRU, LSTM
 from keras.optimizers import *
+from keras.utils import plot_model
 from pysts.kerasts.objectives import ranknet, ranksvm, cicerons_1504
 import pysts.kerasts.blocks as B
 from tasks import default_config
@@ -100,7 +101,8 @@ def train_model(runid, model, task, c):
 def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
     print('Model')
     model = task.build_model(module_prep_model)
-
+    plot_model(model, to_file='model.png')
+    
     train_model(runid, model, task, conf)
 
     if do_eval:
