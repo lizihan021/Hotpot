@@ -40,7 +40,8 @@ class ParaphrasingTask(AbstractTask):
         if lists:
             s0, s1, y = lists
         else:
-            s0, s1, y = loader.load_msrpara(fname)
+#            s0, s1, y = loader.load_msrpara(fname)   #set it free is we decide not to use quora dataset
+            s0, s1, y = loader.load_quora(fname)
 
         if self.vocab is None:
             vocab = Vocabulary(s0 + s1, prune_N=self.c['embprune'], icase=self.c['embicase'])
@@ -65,7 +66,7 @@ class ParaphrasingTask(AbstractTask):
             model.nodes[lname].trainable = False
 
         if do_compile:
-            model.compile(loss={'score': self.c['loss']}, optimizer=self.c['opt'])
+            model.compile(loss=self.c['loss'], optimizer=self.c['opt'])
         return model
 
     def fit_callbacks(self, weightsf):

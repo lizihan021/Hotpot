@@ -322,6 +322,27 @@ def load_msrpara(dsfile):
     return (s0, s1, np.array(labels))
 
 
+def load_quora(dsfile):
+    """ load a dataset in the quora csv format """
+    s0 = []
+    s1 = []
+    labels = []
+    with open(dsfile, encoding = 'utf8') as csvfile:
+        f = csv.reader(csvfile)
+        firstline = True
+        for line in f:
+            if firstline:
+                firstline = False
+                continue
+            s0x = line[3]
+            s1x = line[4]
+            label = line[5]
+            labels.append(float(label))
+            s0.append(word_tokenize(s0x))
+            s1.append(word_tokenize(s1x))
+    return (s0, s1, np.array(labels))
+
+
 def load_askubuntu_texts(tfile):
     # https://github.com/taolei87/rcnn/blob/master/code/qa/myio.py
     empty_cnt = 0

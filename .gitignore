@@ -5,6 +5,9 @@
 pysts/kerasts/*.pyc
 pysts/kerasts/__pycache__/*
 
+/data/question-pairs*
+/data/data_*
+
 /glove.6B.*d.txt
 /*weights*.h5
 /*-res.pickle
