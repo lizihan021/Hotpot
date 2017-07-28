@@ -107,7 +107,10 @@ class AbstractTask(object):
                     # print(sl)
                     # print('<<0>>', ogr['sj0'], ogr['se0'])
                     # print('<<1>>', ogr['sj1'], ogr['se1'])
-                    y = ogr.pop('classes')
+                    if 'score' in task.gr:
+                        y = ogr.pop('score')
+                    elif 'classes' in task.gr:
+                        y = ogr.pop('classes')
                     yield (ogr, y)
                 if once:
                     break
