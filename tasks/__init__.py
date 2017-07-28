@@ -109,7 +109,7 @@ class AbstractTask(object):
                     # print('<<1>>', ogr['sj1'], ogr['se1'])
                     if 'score' in task.gr:
                         y = ogr.pop('score')
-                    elif 'classes' in task.gr:
+                    else:
                         y = ogr.pop('classes')
                     yield (ogr, y)
                 if once:
