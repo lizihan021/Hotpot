@@ -61,3 +61,6 @@ def config(c):
 
 def prep_model(inputs, N, s0pad, s1pad, c):
     
+    
+
+    
