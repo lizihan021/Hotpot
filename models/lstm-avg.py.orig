@@ -65,6 +65,11 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     lstm1 = lstm(inputs[0])
     lstm2 = lstm(inputs[1])
     
+<<<<<<< HEAD
+    
+
+    
+=======
     # Averaging
     avg = Lambda(function=lambda x: K.mean(x, axis=1),
                  output_shape=lambda shape: (shape[0], ) + shape[2:])
@@ -73,3 +78,4 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     
     return [lstm_avg1, lstm_avg2], N
         
+>>>>>>> e9caaa8ea2273f894d0bfc825e42146a4c9b3fda
