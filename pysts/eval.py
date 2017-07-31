@@ -26,7 +26,7 @@ def binclass_accuracy(y, ypred):
     less y1 samples, their detection is equally important.)
     """
     print(y, ypred)
-    print(y.shape(), ypred.shape())
+    print(y.shape, ypred.shape)
     rawacc = np.sum((ypred > 0.5) == (y > 0.5)) / ypred.shape[0]
     y0acc = np.sum(np.logical_and(ypred < 0.5, y < 0.5)) / np.sum(y < 0.5)
     y1acc = np.sum(np.logical_and(ypred > 0.5, y > 0.5)) / np.sum(y > 0.5)
