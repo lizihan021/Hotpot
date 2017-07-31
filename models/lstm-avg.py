@@ -60,32 +60,4 @@ def config(c):
 
 
 def prep_model(inputs, N, s0pad, s1pad, c):
-    # Word-level projection before averaging
-    if c['wproject']:
-        wproj = Dense(int(N*c['wdim']), activation=c['wact'], kernel_regularizer=l2(c['l2reg']), name='wproj')
-        inputs[0] = wproj(inputs[0])
-        inputs[1] = wproj(inputs[1])
     
-    # Averaging
-    avg = Lambda(function=lambda x: K.mean(x, axis=1), 
-                 output_shape=lambda shape: (shape[0], ) + shape[2:])
-    e0b = avg(inputs[0])
-    e1b = avg(inputs[1])
-    bow_last = [e0b, e1b]
-    
-    # Deep
-    for i in range(c['deep']):
-        deepD1 = Dense(N, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep[%d]'%(i,))
-        bow_next_0 = deepD1(bow_last[0])
-        bow_next_1 = deepD1(bow_last[1])
-        bow_last = [bow_next_0, bow_next_1]
-
-    # Projection
-    if c['project']:
-        proj = Dense(int(N*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
-        e0b = proj(bow_last[0])
-        e1b = proj(bow_last[1])
-        N = N*c['pdim']
-        return [e0b, e1b], N 
-    else:
-        return bow_last, N
