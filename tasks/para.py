@@ -81,7 +81,11 @@ class ParaphrasingTask(AbstractTask):
                 res.append(None)
                 continue
             ypred = self.predict(model, gr)
-            res.append(ev.eval_para(np.array(ypred[i][0] for i in range(0, ypred.shape[0])), gr['score'], fname))
+            tmp = np.array()
+            for yp in ypred:
+                tmp.append(yp[0]) 
+            ypred = tmp
+            res.append(ev.eval_para(ypred, gr['score'], fname))
         return tuple(res)
 
     def res_columns(self, mres, pfx=' '):
