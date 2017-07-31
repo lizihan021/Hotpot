@@ -107,9 +107,9 @@ class AbstractTask(object):
                     # print(sl)
                     # print('<<0>>', ogr['sj0'], ogr['se0'])
                     # print('<<1>>', ogr['sj1'], ogr['se1'])
-                    if 'score' in task.gr:
+                    if 'score' in ogr:
                         y = ogr.pop('score')
-                    elif 'classes' in task.gr:
+                    else:
                         y = ogr.pop('classes')
                     yield (ogr, y)
                 if once:
@@ -238,5 +238,5 @@ class AbstractTask(object):
         batch_size = 16384  # XXX: hardcoded
         ypred = []
         for ogr, _ in self.sample_pairs(gr, batch_size, shuffle=False, once=True):
-            ypred += list(model.predict(ogr)['score'][:,0])
+            ypred += list(model.predict(ogr))
         return np.array(ypred)
