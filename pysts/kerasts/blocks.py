@@ -10,7 +10,7 @@ from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.layers.core import Activation, Dense, Dropout, Flatten, Lambda
 from keras.layers import Input, add, concatenate, multiply
 from keras.layers.embeddings import Embedding
-from keras.layers.recurrent import GRU
+from keras.layers.recurrent import GRU, SimpleRNN, LSTM
 from keras.regularizers import l2
 from keras import backend as K
 
@@ -107,7 +107,7 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     return embedded, N_emb
 
 
-def rnn_input(model, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
+def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
               sdim=2, rnnbidi=True, return_sequences=False,
               rnn=GRU, rnnact='tanh', rnninit='glorot_uniform', rnnbidi_mode='sum',
               rnnlevels=1,
@@ -124,40 +124,60 @@ def rnn_input(model, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
     i.e. the inner RNNs have both the outer RNN and original embeddings as inputs.
     """
     deep_inputs = inputs
+    linear_rnn = Activation('linear')
     for i in range(1, rnnlevels):
-        rnn_input(model, N, spad, dropout=0, sdim=sdim, rnnbidi=rnnbidi, return_sequences=True,
+        sequences = rnn_input(inputs=deep_inputs, N, spad, dropout=0, sdim=sdim, rnnbidi=rnnbidi, return_sequences=True,
                   rnn=rnn, rnnact=rnnact, rnninit=rnninit, rnnbidi_mode=rnnbidi_mode,
                   rnnlevels=1, inputs=deep_inputs, pfx=pfx+'L%d'%(i,))
-        model.add_node(name=pfx+'L%de0s_j'%(i,), inputs=[inputs[0], pfx+'L%de0s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
-        model.add_node(name=pfx+'L%de1s_j'%(i,), inputs=[inputs[1], pfx+'L%de1s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
-        deep_inputs = ['L%de0s_j'%(i,), 'L%de1s_j'%(i,)]
+        #model.add_node(name=pfx+'L%de0s_j'%(i,), inputs=[inputs[0], pfx+'L%de0s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
+        #model.add_node(name=pfx+'L%de1s_j'%(i,), inputs=[inputs[1], pfx+'L%de1s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
+        #deep_inputs = ['L%de0s_j'%(i,), 'L%de1s_j'%(i,)]
+        e0s_j = linear_rnn(concatenate([inputs[0], sequences[0]]))
+        e1s_j = linear_rnn(concatenate([inputs[1], sequences[1]]))
+        deep_inputs = [e0s_j, e1s_j]
+        
 
     if rnnbidi:
         if rnnbidi_mode == 'concat':
             sdim /= 2
-        model.add_shared_node(name=pfx+'rnnf', inputs=deep_inputs, outputs=[pfx+'e0sf', pfx+'e1sf'],
-                              layer=rnn(input_dim=N, output_dim=int(N*sdim), input_length=spad,
-                                        init=rnninit, activation=rnnact,
-                                        return_sequences=return_sequences,
-                                        dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
-        model.add_shared_node(name=pfx+'rnnb', inputs=deep_inputs, outputs=[pfx+'e0sb', pfx+'e1sb'],
-                              layer=rnn(input_dim=N, output_dim=int(N*sdim), input_length=spad,
-                                        init=rnninit, activation=rnnact,
-                                        return_sequences=return_sequences, go_backwards=True,
-                                        dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
-        model.add_node(name=pfx+'e0s', inputs=[pfx+'e0sf', pfx+'e0sb'], merge_mode=rnnbidi_mode, layer=Activation('linear'))
-        model.add_node(name=pfx+'e1s', inputs=[pfx+'e1sf', pfx+'e1sb'], merge_mode=rnnbidi_mode, layer=Activation('linear'))
+        #model.add_shared_node(name=pfx+'rnnf', inputs=deep_inputs, outputs=[pfx+'e0sf', pfx+'e1sf'],
+        #                      layer=rnn(input_dim=N, output_dim=int(N*sdim), input_length=spad,
+        #                                init=rnninit, activation=rnnact,
+        #                                return_sequences=return_sequences,
+        #                                dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
+        #model.add_shared_node(name=pfx+'rnnb', inputs=deep_inputs, outputs=[pfx+'e0sb', pfx+'e1sb'],
+        #                      layer=rnn(input_dim=N, output_dim=int(N*sdim), input_length=spad,
+        #                                init=rnninit, activation=rnnact,
+        #                                return_sequences=return_sequences, go_backwards=True,
+        #                                dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
+        rnnf = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, name='rnnf')
+        e0sf = rnnf(deep_inputs[0])
+        e1sf = rnnf(deep_inputs[1])
+        rnnb = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, go_backwards=True, name='rnnb')
+        e0sb = rnnb(deep_inputs[0])
+        e1sb = rnnb(deep_inputs[1])
 
+        #model.add_node(name=pfx+'e0s', inputs=[pfx+'e0sf', pfx+'e0sb'], merge_mode=rnnbidi_mode, layer=Activation('linear'))
+        #model.add_node(name=pfx+'e1s', inputs=[pfx+'e1sf', pfx+'e1sb'], merge_mode=rnnbidi_mode, layer=Activation('linear'))
+        e0s = linear_rnn(add([e0sf, e0sb]))
+        e1s = linear_rnn(add([e1sf, e1sb]))
     else:
-        model.add_shared_node(name=pfx+'rnn', inputs=deep_inputs, outputs=[pfx+'e0s', pfx+'e1s'],
-                              layer=rnn(input_dim=N, output_dim=int(N*sdim), input_length=spad,
-                                        init=rnninit, activation=rnnact,
-                                        return_sequences=return_sequences,
-                                        dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
+        #model.add_shared_node(name=pfx+'rnn', inputs=deep_inputs, outputs=[pfx+'e0s', pfx+'e1s'],
+        #                      layer=rnn(input_dim=N, output_dim=int(N*sdim), input_length=spad,
+        #                                init=rnninit, activation=rnnact,
+        #                                return_sequences=return_sequences,
+        #                                dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
+        rnn = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, name='rnn')
+        e0s = SimpleRNN(deep_inputs[0])
+        e1s = SimpleRNN(deep_inputs[1])
 
-    model.add_shared_node(name=pfx+'rnndrop', inputs=[pfx+'e0s', pfx+'e1s'], outputs=[pfx+'e0s_', pfx+'e1s_'],
-                          layer=Dropout(dropout, input_shape=(spad, int(N*sdim)) if return_sequences else (int(N*sdim),)))
-
+    #model.add_shared_node(name=pfx+'rnndrop', inputs=[pfx+'e0s', pfx+'e1s'], outputs=[pfx+'e0s_', pfx+'e1s_'],
+    #                      layer=Dropout(dropout, input_shape=(spad, int(N*sdim)) if return_sequences else (int(N*sdim),)))
+    rnndrop = Dropout(dropout, input_shape=(spad, int(N*sdim)) if return_sequences else (int(N*sdim),), name='rnndrop')
+    e0s_ = rnndrop(e0s)
+    e1s_ = rnndrop(e1s)
+    return [e0s_, e1s_]
+    
 
 def add_multi_node(model, name, inputs, outputs, layer_class,
         layer_args, siamese=True, **kwargs):

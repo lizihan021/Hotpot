@@ -50,8 +50,8 @@ def config(c):
     c['Ddim'] = 2
 
 
-def prep_model(model, N, s0pad, s1pad, c):
-    B.rnn_input(model, N, s0pad,
+def prep_model(inputs, N, s0pad, s1pad, c):
+    outputs = B.rnn_input(inputs, N, s0pad,
                 dropout=c['dropout'], dropoutfix_inp=c['dropoutfix_inp'], dropoutfix_rec=c['dropoutfix_rec'],
                 sdim=c['sdim'],
                 rnnbidi=c['rnnbidi'], rnn=c['rnn'], rnnact=c['rnnact'], rnninit=c['rnninit'],
@@ -59,14 +59,12 @@ def prep_model(model, N, s0pad, s1pad, c):
 
     # Projection
     if c['project']:
-        model.add_shared_node(name='proj', inputs=['e0s_', 'e1s_'], outputs=['e0p', 'e1p'],
-                              layer=Dense(input_dim=int(N*c['sdim']), output_dim=int(N*c['pdim']), init=c['pinit'],
-                                          W_regularizer=l2(c['l2reg']), activation=c['pact']))
-        # This dropout is controversial; it might be harmful to apply,
-        # or at least isn't a clear win.
-        # model.add_shared_node(name='projdrop', inputs=['e0p', 'e1p'], outputs=['e0p_', 'e1p_'],
-        #                       layer=Dropout(c['dropout'], input_shape=(N,)))
-        # return ('e0p_', 'e1p_')
-        return ('e0p', 'e1p')
+        proj = Dense(int(N*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
+        e0p = proj(outputs[0])
+        e1p = proj(outputs[1])
+        N = N*c['pdim']
+        return [e0p, e1p], N 
     else:
-        return ('e0s_', 'e1s_')
+        return [outputs[0], outputs[1]], N
+
+    #input_dim=int(N*c['sdim'])
