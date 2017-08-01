@@ -27,7 +27,11 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
+<<<<<<< HEAD
+from keras.layers import Dense, Lambda, LSTM, add
+=======
 from keras.layers import Dense, Lambda, LSTM, merge, add, Activation 
+>>>>>>> 3daf16569ef086e0103f319f9f8f32f2803c7bc0
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -48,6 +52,21 @@ def config(c):
 
 def prep_model(inputs, N, s0pad, s1pad, c):
     # LSTM
+<<<<<<< HEAD
+    lstm = LSTM(N, return_sequences=True)
+    lstm0 = lstm(inputs[0])
+    lstm1 = lstm(inputs[1])
+    # TODO dimention of the dense should be configurable
+    dense_proj = Dense(N, activation="linear", kernel_regularizer=l2(c['l2reg']))
+    lstm0_d = dense_proj(lstm0)
+    lstm1_d = dense_proj(lstm1)
+    input0_d = dense_proj(input[0])
+    input1_d = dense_proj(input[1])
+    gate0 = add([lstm0_d, input0_d])
+    gate1 = add([lstm1_d, input1_d])
+
+
+=======
     lstm = LSTM(N, return_sequences=True, implementation=2, 
                    kernel_regularizer=l2(c['l2reg']), recurrent_regularizer=l2(c['l2reg']),
                    bias_regularizer=l2['l2reg'])
@@ -64,6 +83,7 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     a1 = TimeDistributed(multiply([x1,sigmoid(add( [W_x(x1), W_h(h1)] ))]))
     a2 = TimeDistributed(multiply([x2,sigmoid(add( [W_x(x2), W_h(h2)] ))]))
      
+>>>>>>> 3daf16569ef086e0103f319f9f8f32f2803c7bc0
     # Averaging
     avg = Lambda(function=lambda x: K.mean(x, axis=1),
                  output_shape=lambda shape: (shape[0], ) + shape[2:])
