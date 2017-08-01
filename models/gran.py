@@ -27,7 +27,7 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-from keras.layers import Dense, Lambda, LSTM, merge, add, Activation, TimeDistributed, multiply
+from keras.layers import Dense, Lambda, LSTM, add, Activation, multiply
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -67,8 +67,8 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     # Averaging
     avg = Lambda(function=lambda x: K.mean(x, axis=1),
                  output_shape=lambda shape: (shape[0], ) + shape[2:])
-    lstm_avg1 = avg(a1)
-    lstm_avg2 = avg(a2)
+    gran1 = avg(a1)
+    gran2 = avg(a2)
     
-    return [lstm_avg1, lstm_avg2], N
+    return [gran1, gran2], N
         
