@@ -38,7 +38,7 @@ def config(c):
     c['l2reg'] = 1e-4
 
     # word-level projection before averaging
-    c['wproject'] = True
+    c['wproject'] = False
     c['wdim'] = 1
     c['wact'] = 'linear'
 

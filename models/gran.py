@@ -27,7 +27,7 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-from keras.layers import Dense, Lambda, LSTM, merge, add, Activation 
+from keras.layers import Dense, Lambda, LSTM, merge, add, Activation, TimeDistributed, multiply
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -50,7 +50,7 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     # LSTM
     lstm = LSTM(N, return_sequences=True, implementation=2, 
                    kernel_regularizer=l2(c['l2reg']), recurrent_regularizer=l2(c['l2reg']),
-                   bias_regularizer=l2['l2reg'])
+                   bias_regularizer=l2(c['l2reg']))
     x1 = inputs[0]
     x2 = inputs[1]
     h1 = lstm(x1)
@@ -61,8 +61,8 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     W_h = Dense(N, kernel_initializer='orthogonal', use_bias=True,
                    kernel_regularizer=l2(c['l2reg']))
     sigmoid = Activation('sigmoid')
-    a1 = TimeDistributed(multiply([x1,sigmoid(add( [W_x(x1), W_h(h1)] ))]))
-    a2 = TimeDistributed(multiply([x2,sigmoid(add( [W_x(x2), W_h(h2)] ))]))
+    a1 = multiply([x1, sigmoid( add([W_x(x1), W_h(h1)]) )])
+    a2 = multiply([x2, sigmoid( add([W_x(x2), W_h(h2)]) )])
      
     # Averaging
     avg = Lambda(function=lambda x: K.mean(x, axis=1),
