@@ -27,7 +27,7 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-from keras.layers import Dense, Lambda
+from keras.layers import Dense, Lambda, LSTM
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -46,7 +46,7 @@ def config(c):
     c['nnact'] = 'relu'
     c['nninit'] = 'glorot_uniform'
 
-    c['project'] = True
+    c['project'] = False
     c['pdim'] = 1
     c['pact'] = 'tanh'
 
@@ -60,4 +60,16 @@ def config(c):
 
 
 def prep_model(inputs, N, s0pad, s1pad, c):
+    # LSTM
+    lstm = LSTM(N, return_sequences=True)
+    lstm1 = lstm(inputs[0])
+    lstm2 = lstm(inputs[1])
     
+    # Averaging
+    avg = Lambda(function=lambda x: K.mean(x, axis=1),
+                 output_shape=lambda shape: (shape[0], ) + shape[2:])
+    lstm_avg1 = avg(lstm1)
+    lstm_avg2 = avg(lstm2)
+    
+    return [lstm_avg1, lstm_avg2], N
+        

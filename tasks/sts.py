@@ -125,12 +125,12 @@ class STSTask(AbstractTask):
                 ModelCheckpoint(weightsf, save_best_only=True, monitor='pearson', mode='max'),
                 EarlyStopping(monitor='pearson', mode='max', patience=3)]
 
-    def predict(self, model, gr):
-        batch_size = 3000  # XXX: hardcoded
-        ypred = []
-        for ogr, _ in self.sample_pairs(gr, batch_size, shuffle=False, once=True):
-            ypred += list(model.predict(ogr))
-        return np.array(ypred)
+#    def predict(self, model, gr):
+#        batch_size = 3000  # XXX: hardcoded
+#        ypred = []
+#        for ogr, _ in self.sample_pairs(gr, batch_size, shuffle=False, once=True):
+#            ypred += list(model.predict(ogr))
+#        return np.array(ypred)
 
     def eval(self, model):
         res = []
