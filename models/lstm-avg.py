@@ -46,7 +46,7 @@ def config(c):
     c['nnact'] = 'relu'
     c['nninit'] = 'glorot_uniform'
 
-    c['project'] = True
+    c['project'] = False
     c['pdim'] = 1
     c['pact'] = 'tanh'
 

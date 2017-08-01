@@ -27,7 +27,7 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-from keras.layers import Dense, Lambda, LSTM
+from keras.layers import Dense, Lambda, LSTM, add
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -62,9 +62,18 @@ def config(c):
 def prep_model(inputs, N, s0pad, s1pad, c):
     # LSTM
     lstm = LSTM(N, return_sequences=True)
-    lstm1 = lstm(inputs[0])
-    lstm2 = lstm(inputs[1])
-    
+    lstm0 = lstm(inputs[0])
+    lstm1 = lstm(inputs[1])
+    # TODO dimention of the dense should be configurable
+    dense_proj = Dense(N, activation="linear", kernel_regularizer=l2(c['l2reg']))
+    lstm0_d = dense_proj(lstm0)
+    lstm1_d = dense_proj(lstm1)
+    input0_d = dense_proj(input[0])
+    input1_d = dense_proj(input[1])
+    gate0 = add([lstm0_d, input0_d])
+    gate1 = add([lstm1_d, input1_d])
+
+
     # Averaging
     avg = Lambda(function=lambda x: K.mean(x, axis=1),
                  output_shape=lambda shape: (shape[0], ) + shape[2:])
