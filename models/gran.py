@@ -62,8 +62,11 @@ def config(c):
 def prep_model(inputs, N, s0pad, s1pad, c):
     # LSTM
     lstm = LSTM(N, return_sequences=True)
-    lstm1 = lstm(inputs[0])
-    lstm2 = lstm(inputs[1])
+    h1 = lstm(inputs[0])
+    h2 = lstm(inputs[1])
+     
+    w = Dense
+     
     
     # Averaging
     avg = Lambda(function=lambda x: K.mean(x, axis=1),
