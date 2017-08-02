@@ -110,8 +110,7 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
 def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
               sdim=2, rnnbidi=True, return_sequences=False,
               rnn=GRU, rnnact='tanh', rnninit='glorot_uniform', rnnbidi_mode='sum',
-              rnnlevels=1,
-              inputs=['e0', 'e1'], pfx=''):
+              rnnlevels=1, pfx=''):
     """ An RNN layer that takes sequence of embeddings e0, e1 and
     processes them using an RNN + dropout.
 
@@ -126,9 +125,10 @@ def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
     deep_inputs = inputs
     linear_rnn = Activation('linear')
     for i in range(1, rnnlevels):
-        sequences = rnn_input(inputs=deep_inputs, N, spad, dropout=0, sdim=sdim, rnnbidi=rnnbidi, return_sequences=True,
+        sequences = rnn_input(deep_inputs, N, spad, dropout=0, sdim=sdim, rnnbidi=rnnbidi, return_sequences=True,
                   rnn=rnn, rnnact=rnnact, rnninit=rnninit, rnnbidi_mode=rnnbidi_mode,
                   rnnlevels=1, inputs=deep_inputs, pfx=pfx+'L%d'%(i,))
+        inputs = deep_inputs
         #model.add_node(name=pfx+'L%de0s_j'%(i,), inputs=[inputs[0], pfx+'L%de0s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
         #model.add_node(name=pfx+'L%de1s_j'%(i,), inputs=[inputs[1], pfx+'L%de1s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
         #deep_inputs = ['L%de0s_j'%(i,), 'L%de1s_j'%(i,)]
