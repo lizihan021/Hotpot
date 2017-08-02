@@ -106,13 +106,13 @@ def embedding(inputs, glove, vocab, s0pad, s1pad, dropout_e, dropout_w,
     '''
     return embedded, N_emb
 
-
+"""
 def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
               sdim=2, rnnbidi=True, return_sequences=False,
               rnn=GRU, rnnact='tanh', rnninit='glorot_uniform', rnnbidi_mode='sum',
               rnnlevels=1,
               inputs=['e0', 'e1'], pfx=''):
-    """ An RNN layer that takes sequence of embeddings e0, e1 and
+     An RNN layer that takes sequence of embeddings e0, e1 and
     processes them using an RNN + dropout.
 
     If return_sequences=False, it returns just the final hidden state of the RNN;
@@ -122,13 +122,13 @@ def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
     If rnnlevels>1, a multi-level stacked RNN architecture like in Wang&Nyberg
     http://www.aclweb.org/anthology/P15-2116 is applied, however with skip-connections
     i.e. the inner RNNs have both the outer RNN and original embeddings as inputs.
-    """
+    
     deep_inputs = inputs
     linear_rnn = Activation('linear')
     for i in range(1, rnnlevels):
-        sequences = rnn_input(inputs=deep_inputs, N, spad, dropout=0, sdim=sdim, rnnbidi=rnnbidi, return_sequences=True,
-                  rnn=rnn, rnnact=rnnact, rnninit=rnninit, rnnbidi_mode=rnnbidi_mode,
-                  rnnlevels=1, inputs=deep_inputs, pfx=pfx+'L%d'%(i,))
+        #sequences = rnn_input(inputs=deep_inputs, N, spad, dropout=0, sdim=sdim, rnnbidi=rnnbidi, return_sequences=True,
+        #          rnn=rnn, rnnact=rnnact, rnninit=rnninit, rnnbidi_mode=rnnbidi_mode,
+        #          rnnlevels=1, inputs=deep_inputs, pfx=pfx+'L%d'%(i,))
         #model.add_node(name=pfx+'L%de0s_j'%(i,), inputs=[inputs[0], pfx+'L%de0s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
         #model.add_node(name=pfx+'L%de1s_j'%(i,), inputs=[inputs[1], pfx+'L%de1s_'%(i,)], merge_mode='concat', layer=Activation('linear'))
         #deep_inputs = ['L%de0s_j'%(i,), 'L%de1s_j'%(i,)]
@@ -177,7 +177,7 @@ def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
     e0s_ = rnndrop(e0s)
     e1s_ = rnndrop(e1s)
     return [e0s_, e1s_]
-    
+    """
 
 def add_multi_node(model, name, inputs, outputs, layer_class,
         layer_args, siamese=True, **kwargs):
