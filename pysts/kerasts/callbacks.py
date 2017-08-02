@@ -31,6 +31,10 @@ class ParaCB(Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         ypred = self.task.predict(self.model, self.val_gr)
+        tmp = []
+        for yp in ypred:
+            tmp.append(yp[0]) 
+        ypred = np.array(tmp)
         acc = ev.binclass_accuracy(self.val_gr['score'], ypred)[0]
         print('                                                       val acc %f' % (acc,))
         logs['acc'] = acc
