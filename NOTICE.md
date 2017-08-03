@@ -14,7 +14,8 @@
    
    This work was originaly forked from dataset-sts, thanks to them! We updated
    their code to use Keras 2.0 and added some new state-of-art models.
-   Here is their license and attribution claim:
+   Here is their license and attribution claim:  
+   
    Always check the licences of the respective datasets you are using!  Some of
    them are plain CC-BY, others may be heavily restricted e.g. for non-commercial
    use only.  Default licence for anything else in this repository is ASLv2 for
