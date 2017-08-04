@@ -81,12 +81,12 @@ These datasets are about binary classification of independent sentence
 for example if they describe the same event (with same data), ask the
 same question, etc.
 
+  * [X] **data/question-pairs-dataset/** [Questions Pairs Dataset](https://www.kaggle.com/quora/question-pairs-dataset) 
+    contains over 400,000 lines of annotated potential question duplicate pairs.
+    
   * [X] **data/para/msr/** MSR Paraphrase Dataset (TODO: pysts manipulation tools)
 
   * [X] **data/para/askubuntu/** [AskUbuntu StackOverflow Similar Questions](https://github.com/taolei87/rcnn)
-  
-  * [X] **data/question-pairs-dataset/** [Questions Pairs Dataset](https://www.kaggle.com/quora/question-pairs-dataset) 
-    contains over 400,000 lines of annotated potential question duplicate pairs.
 
   * [ ] [PPDB: The Paraphrase Database](http://www.cis.upenn.edu/~ccb/ppdb/)
     contains only short phrase snippets, but tens of millions of pairs
