@@ -1,4 +1,20 @@
 """
+Copyright 2017 Liang Qiu, Zihan Li, Yuanyi Ding
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+"""
 A model with a very simple architecture that never-the-less closely
 approaches 2015-state-of-art results on the anssel-wang task (with
 token flags).

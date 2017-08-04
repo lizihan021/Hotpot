@@ -150,10 +150,14 @@ def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
         #                                init=rnninit, activation=rnnact,
         #                                return_sequences=return_sequences, go_backwards=True,
         #                                dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
-        rnnf = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, name='rnnf')
+        rnnf = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, 
+                                      recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, 
+                                      name='rnnf')
         e0sf = rnnf(deep_inputs[0])
         e1sf = rnnf(deep_inputs[1])
-        rnnb = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, go_backwards=True, name='rnnb')
+        rnnb = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, 
+                                      recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, 
+                                      go_backwards=True, name='rnnb')
         e0sb = rnnb(deep_inputs[0])
         e1sb = rnnb(deep_inputs[1])
 
@@ -167,7 +171,9 @@ def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
         #                                init=rnninit, activation=rnnact,
         #                                return_sequences=return_sequences,
         #                                dropout_W=dropoutfix_inp, dropout_U=dropoutfix_rec))
-        rnn = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, name='rnn')
+        rnn = SimpleRNN(int(N*sdim), activation=rnnact, dropout=dropoutfix_inp, 
+                                     recurrent_dropout=dropoutfix_rec, return_sequences=return_sequences, 
+                                     name='rnn')
         e0s = SimpleRNN(deep_inputs[0])
         e1s = SimpleRNN(deep_inputs[1])
 

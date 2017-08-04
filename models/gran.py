@@ -1,27 +1,37 @@
 """
-A simple averaging model.
+Copyright 2017 Liang Qiu, Zihan Li, Yuanyi Ding
 
-In its default settings, this is the baseline unigram (Yu, 2014) approach
-http://arxiv.org/abs/1412.1632 of training (M, b) such that:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-    f(q, a) = sigmoid(q * M * a.T + b)
+    http://www.apache.org/licenses/LICENSE-2.0
 
-However, rather than a dot-product, the MLP comparison is used as it works
-dramatically better.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 
-This model can also represent the Deep Averaging Networks
-(http://cs.umd.edu/~miyyer/pubs/2015_acl_dan.pdf) with this configuration:
+"""
+A model with the 2017-state-of-art Gated Recurrent Averaging Network 
+(GRAN) architecture that achieves a high prediction accuracy on the 
+Quera Question Pairs competition task.
 
-    inp_e_dropout=0 inp_w_dropout=1/3 deep=2 "pact='relu'"
+The architecture uses LSTM, averaging and a gating system to produce 
+sentence embeddings, adaptable word embedding matrix preinitialized 
+with 300D GloVe.
 
-The model also supports preprojection of embeddings (not done by default;
-wproj=True), though it doesn't do a lot of good it seems - the idea was to
-allow mixin of NLP flags.
+The key idea behind the GRAN is to add importance to different word 
+embeddings prior to averaging. The gate can be seen as an attention, 
+attending to the information of each step of the LSTM such that:
 
+    a = x * sigmoid(W_x * x + W_h * h + b)
 
-Performance:
-    * anssel-yodaqa:
-      valMRR=0.334864 (dot)
+This model was inspired by John Weithing, a PhD student at the Toyota 
+Technological Institute at the University of Chicago. Details of this 
+model can be found at http://ttic.uchicago.edu/~wieting/wieting2017Recurrent.pdf
 """
 
 from __future__ import print_function
@@ -46,7 +56,7 @@ def config(c):
     c['Ddim'] = 1
 
 
-def prep_model(inputs, N, s0pad, s1pad, c):
+def prep_model(inputs, N, s0pad, s1pad, c, granlevels=1):
     # LSTM
     lstm = LSTM(N, return_sequences=True, implementation=2, 
                    kernel_regularizer=l2(c['l2reg']), recurrent_regularizer=l2(c['l2reg']),
