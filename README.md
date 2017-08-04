@@ -49,8 +49,6 @@ Python is preferred, but not mandatory.)
 Software Tools
 --------------
 
-To get started with simple classifiers that use task-specific code,
-look at the **examples/** directory.
 To get started with task-universal deep learning models, look at the
 **tools/**, **models/** and **tasks/** directory.
 
