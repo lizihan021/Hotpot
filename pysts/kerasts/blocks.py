@@ -6,8 +6,8 @@ from __future__ import division
 from __future__ import print_function
 
 from keras.models import Model
-from keras.layers.convolutional import Convolution1D, MaxPooling1D
-from keras.layers.core import Activation, Dense, Dropout, Flatten, Lambda
+from keras.layers.convolutional import Conv1D, MaxPooling1D
+from keras.layers import Activation, Dense, Dropout, Flatten, Lambda, concatenate
 from keras.layers import Input, add, concatenate, multiply
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU, SimpleRNN, LSTM
@@ -179,22 +179,29 @@ def rnn_input(inputs, N, spad, dropout=3/4, dropoutfix_inp=0, dropoutfix_rec=0,
     return [e0s_, e1s_]
     
 
-def add_multi_node(model, name, inputs, outputs, layer_class,
-        layer_args, siamese=True, **kwargs):
+def add_multi_node(inputs, layer_class, layer_args, siamese=True, **kwargs):
     if siamese:
-        layer = layer_class(**layer_args)
-        model.add_shared_node(name=name, inputs=inputs, outputs=outputs,
-                layer=layer, **kwargs)
+        out = []
+        out.append(layer_class(**layer_args)(inputs[0]))
+        out.append(layer_class(**layer_args)(inputs[1]))
+        return out
+        # model.add_shared_node(name=name, inputs=inputs, outputs=outputs,
+        #         layer=layer, **kwargs)
     else:
-        for inp, outp in zip(inputs, outputs):
-            layer = layer_class(**layer_args)
-            model.add_node(name=outp, input=inp, layer=layer, **kwargs)
+        outp = []
+        for inp in inputs:
+            out = []
+            out.append(layer_class(**layer_args)(inp[0]))
+            out.append(layer_class(**layer_args)(inp[1]))
+            outp.append( out )
+            # model.add_node(name=outp, input=inp, layer=layer, **kwargs)
+        return outp
 
 
-def cnnsum_input(model, N, spad, dropout=3/4, l2reg=1e-4,
+def cnnsum_input(inputs, N, spad, dropout=3/4, l2reg=1e-4,
                  cnninit='glorot_uniform', cnnact='tanh',
                  cdim={1: 1/2, 2: 1/2, 3: 1/2, 4: 1/2, 5: 1/2},
-                 inputs=['e0', 'e1'], pfx='', siamese=True):
+                 pfx='', siamese=True):
     """ An CNN pooling layer that takes sequence of embeddings e0, e1 and
     processes them using a CNN + max-pooling to produce a single "summary
     embedding" (*NOT* a sequence of embeddings).
@@ -208,38 +215,59 @@ def cnnsum_input(model, N, spad, dropout=3/4, l2reg=1e-4,
     The output layers are e0s_, e1s_.
     """
     Nc = 0
+    layer_outputs = []
     for fl, cd in cdim.items():
         nb_filter = int(N*cd)
-        add_multi_node(model, name=pfx+'aconv%d'%(fl,), siamese=siamese,
-                              inputs=inputs, outputs=[pfx+'e0c%d'%(fl,), pfx+'e1c%d'%(fl,)],
-                              layer_class=Convolution1D,
-                              layer_args={'input_shape':(spad, N),
+
+        # add_multi_node(model, name=pfx+'aconv%d'%(fl,), siamese=siamese,
+        #                       inputs=inputs, outputs=[pfx+'e0c%d'%(fl,), pfx+'e1c%d'%(fl,)],
+        #                       layer_class=Convolution1D,
+        #                       layer_args={'input_shape':(spad, N),
+        #                           'nb_filter':nb_filter,
+        #                           'filter_length':fl,
+        #                           'activation':cnnact,
+        #                           'W_regularizer':l2(l2reg),
+        #                           'init':cnninit})
+        # add_multi_node(model, name=pfx+'apool%d[0]'%(fl,), siamese=siamese,
+        #                       inputs=[pfx+'e0c%d'%(fl,), pfx+'e1c%d'%(fl,)],
+        #                       outputs=[pfx+'e0s%d[0]'%(fl,), pfx+'e1s%d[0]'%(fl,)],
+        #                       layer_class=MaxPooling1D,
+        #                       layer_args={'pool_length':int(spad - fl + 1)})
+        # add_multi_node(model, name=pfx+'apool%d[1]'%(fl,), siamese=siamese,
+        #                       inputs=[pfx+'e0s%d[0]'%(fl,), pfx+'e1s%s[0]'%(fl,)],
+        #                       outputs=[pfx+'e0s%d'%(fl,), pfx+'e1s%d'%(fl,)],
+        #                       layer_class=Flatten, layer_args={'input_shape':(1, nb_filter)})
+        layer_1 = add_multi_node(inputs, siamese=siamese, layer_class=Conv1D, 
+                                 layer_args={'input_shape':(spad, N),
                                   'nb_filter':nb_filter,
                                   'filter_length':fl,
                                   'activation':cnnact,
                                   'W_regularizer':l2(l2reg),
                                   'init':cnninit})
-        add_multi_node(model, name=pfx+'apool%d[0]'%(fl,), siamese=siamese,
-                              inputs=[pfx+'e0c%d'%(fl,), pfx+'e1c%d'%(fl,)],
-                              outputs=[pfx+'e0s%d[0]'%(fl,), pfx+'e1s%d[0]'%(fl,)],
-                              layer_class=MaxPooling1D,
-                              layer_args={'pool_length':int(spad - fl + 1)})
-        add_multi_node(model, name=pfx+'apool%d[1]'%(fl,), siamese=siamese,
-                              inputs=[pfx+'e0s%d[0]'%(fl,), pfx+'e1s%s[0]'%(fl,)],
-                              outputs=[pfx+'e0s%d'%(fl,), pfx+'e1s%d'%(fl,)],
-                              layer_class=Flatten, layer_args={'input_shape':(1, nb_filter)})
+        layer_2 = add_multi_node(layer_1, siamese=siamese, layer_class=MaxPooling1D, 
+                                 layer_args={'pool_length':int(spad - fl + 1)})
+        layer_3 = add_multi_node(layer_2, siamese=siamese, layer_class=Flatten, 
+                                 layer_args={'input_shape':(1, nb_filter)})
+        layer_outputs.append(layer_3)
         Nc += nb_filter
 
     if len(cdim) > 1:
-        model.add_node(name=pfx+'e0s', inputs=[pfx+'e0s%d'%(fl,) for fl in cdim.keys()], merge_mode='concat', layer=Activation('linear'))
-        model.add_node(name=pfx+'e1s', inputs=[pfx+'e1s%d'%(fl,) for fl in cdim.keys()], merge_mode='concat', layer=Activation('linear'))
+        e0s = Activation('linear')( concatenate([layer_outputs[i][0] for i in len(layer_outputs)]) )
+        e1s = Activation('linear')( concatenate([layer_outputs[i][1] for i in len(layer_outputs)]) )
+        # model.add_node(name=pfx+'e0s', inputs=[pfx+'e0s%d'%(fl,) for fl in cdim.keys()], merge_mode='concat', layer=Activation('linear'))
+        # model.add_node(name=pfx+'e1s', inputs=[pfx+'e1s%d'%(fl,) for fl in cdim.keys()], merge_mode='concat', layer=Activation('linear'))
     else:
-        model.add_node(name=pfx+'e0s', input=pfx+'e0s%d'%(cdim.keys()[0],), layer=Activation('linear'))
-        model.add_node(name=pfx+'e1s', input=pfx+'e1s%d'%(cdim.keys()[0],), layer=Activation('linear'))
-    model.add_node(name=pfx+'e0s_', input=pfx+'e0s', layer=Dropout(dropout))
-    model.add_node(name=pfx+'e1s_', input=pfx+'e1s', layer=Dropout(dropout))
+        e0s = Activation('linear')( layer_outputs[0][0] )
+        e1s = Activation('linear')( layer_outputs[0][1] )
+        # model.add_node(name=pfx+'e0s', input=pfx+'e0s%d'%(cdim.keys()[0],), layer=Activation('linear'))
+        # model.add_node(name=pfx+'e1s', input=pfx+'e1s%d'%(cdim.keys()[0],), layer=Activation('linear'))
+    e0s_d = Dropout(dropout)(e0s)
+    e1s_d = Dropout(dropout)(e1s)
+    # model.add_node(name=pfx+'e0s_', input=pfx+'e0s', layer=Dropout(dropout))
+    # model.add_node(name=pfx+'e1s_', input=pfx+'e1s', layer=Dropout(dropout))
+    final_outputs = [e0s_d, e1s_d]
 
-    return Nc
+    return Nc, final_outputs
 
 
 # Match point scoring (scalar output) callables.  Each returns the layer name.

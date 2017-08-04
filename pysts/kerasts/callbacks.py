@@ -35,7 +35,7 @@ class ParaCB(Callback):
         for yp in ypred:
             tmp.append(yp[0]) 
         ypred = np.array(tmp)
-        rawacc, y0acc, y1acc, balacc, f_score = ev.binclass_accuracy(self.val_gr['score'], ypred)
+        acc, y0acc, y1acc, balacc, f_score = ev.binclass_accuracy(self.val_gr['score'], ypred)
         print('           val acc %f    val f1 %f' % (acc, f_score))
         logs['acc'] = acc
 

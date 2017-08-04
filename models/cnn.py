@@ -45,20 +45,21 @@ def config(c):
 
 
 def prep_model(inputs, N, s0pad, s1pad, c):
-    Nc = B.cnnsum_input(model, N, s0pad, siamese=c['cnnsiamese'],
+    Nc, outputs = B.cnnsum_input(inputs, N, s0pad, siamese=c['cnnsiamese'],
                         dropout=c['dropout'], l2reg=c['l2reg'],
                         cnninit=c['cnninit'], cnnact=c['cnnact'], cdim=c['cdim'])
 
     # Projection
     if c['project']:
-        model.add_shared_node(name='proj', inputs=['e0s_', 'e1s_'], outputs=['e0p', 'e1p'],
-                              layer=Dense(input_dim=Nc, output_dim=int(N*c['pdim']),
-                                          W_regularizer=l2(c['l2reg']), activation=c['pact']))
+        outputs = Dense(int(N*c['pdim']), W_regularizer=l2(c['l2reg']), activation=c['pact'])(outputs)
+        # model.add_shared_node(name='proj', inputs=['e0s_', 'e1s_'], outputs=['e0p', 'e1p'],
+        #                       layer=Dense(input_dim=Nc, output_dim=int(N*c['pdim']),
+        #                                   W_regularizer=l2(c['l2reg']), activation=c['pact']))
         # This dropout is controversial; it might be harmful to apply,
         # or at least isn't a clear win.
         # model.add_shared_node(name='projdrop', inputs=['e0p', 'e1p'], outputs=['e0p_', 'e1p_'],
         #                       layer=Dropout(c['dropout'], input_shape=(N,)))
         # return ('e0p_', 'e1p_')
-        return ('e0p', 'e1p')
+        return outputs
     else:
-        return ('e0s_', 'e1s_')
+        return outputs
