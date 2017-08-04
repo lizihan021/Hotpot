@@ -12,8 +12,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
    
-   This work was originaly forked from dataset-sts, thanks to them! We updated
-   their code to use Keras 2.0 and added some new state-of-art models.
+   This work was originaly forked from **dataset-sts**, thanks to them! We 
+   updated their code to use Keras 2.0 and added some state-of-the-art models. 
    Here is their license and attribution claim:  
    
    Always check the licences of the respective datasets you are using!  Some of
