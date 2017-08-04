@@ -58,8 +58,7 @@ To get started with task-universal deep learning models, look at the
   * **pysts/kerasts** the KeraSTS allows easy prototyping of deep learning
     models for many of the included tasks using the Keras library.
 
-  * **examples/** contains a couple of simple, self-contained baselines
-    on various tasks.
+  * **out/** contains training results of different models and tuning parameters.
 
   * **models/** directory contains various strong baseline models using
     the KeraSTS toolkit, including state-of-art neural networks
