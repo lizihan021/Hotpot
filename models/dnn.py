@@ -15,7 +15,7 @@ limitations under the License.
 """
 
 """
-A simple dnn model
+A simple dnn model that apply 4 dense layers on the word embeddings
 """
 
 from __future__ import print_function
