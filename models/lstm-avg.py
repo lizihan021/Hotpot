@@ -15,7 +15,10 @@ limitations under the License.
 """
 
 """
-
+A model that combines LSTM + AVG to produce sentence embeddings, adaptable 
+word embedding matrix preinitialized with 300D GloVe. The LSTM layer takes 
+word embedding sequences as input. The AVG layer takes the outputs sequences 
+of LSTM layer as inputs.
 """
 from __future__ import print_function
 from __future__ import division
