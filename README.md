@@ -222,17 +222,3 @@ on the ACL wiki, about RTE models on the SNLI page.
   * https://github.com/ryankiros/skip-thoughts
   * Standard memory networks (MemNN, MemN2N) are in fact *f_2* models at their
     core; very similar to http://arxiv.org/abs/1412.1632
-
-Licence and Attribution
------------------------
-
-Always check the licences of the respective datasets you are using!  Some of
-them are plain CC-BY, others may be heavily restricted e.g. for non-commercial
-use only.  Default licence for anything else in this repository is ASLv2 for
-the code, CC-BY 4.0 for data.
-
-Work on this project has been in part kindly sponsored by the Medialab
-foundation (http://medialab.cz/), a Czech Technical University incubator.
-The rest of contributions by Petr Baudiš is licenced as open source via
-Ailao (http://ailao.eu/).  (Ailao also provides commercial consulting,
-customization, deployment and support services.)
