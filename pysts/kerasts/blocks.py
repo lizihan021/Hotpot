@@ -330,6 +330,7 @@ def mlp_ptscorer(inputs, Ddim, N, l2reg, pfx='out', Dinit='glorot_uniform', sum_
     # Ddim may be either 0 (no hidden layer), scalar (single hidden layer) or
     # list (multiple hidden layers)
     if Ddim == 0:
+        mlp_inputs = mlp_args(mlp_inputs)
         Ddim = []
     elif not isinstance(Ddim, list):
         Ddim = [Ddim]
