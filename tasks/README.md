@@ -13,8 +13,10 @@ in **data/TASKNAME/** subdirectories.
 
 *   **anssel.py** - Answer Sentence Selection Task.  Example:
 
- ``tools/train.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv nb_runs=4`` 
- ``tools/eval.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv - weights-anssel-avg--731b5fca12808be0-*``
+    ```
+    tools/train.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv nb_runs=4
+    tools/eval.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv - weights-anssel-avg--731b5fca12808be0-*
+    ```
 
  * **ubuntu.py** - Ubuntu Dialogue instance of anssel/next utterance task.
    The data is serialized efficiently and custom metrics reported.  Example:
