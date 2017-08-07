@@ -56,6 +56,8 @@ directory.
     embedding across all input words, then projects it to a similarity
     vector space; this is analogous to [(Yu, 1412.1632)](http://arxiv.org/abs/1412.1632)
     as well as the MemN2N model; it also supports the Deep Averaging Networks
+  * **lstm-avg.py** is a state-of-art model that generates summary sentence embeddings 
+    based on LSTM and bag-of-words average embedding
   * **rnn.py** is a simple model that generates summary sentence embeddings
     based on GRU hidden states
   * **cnn.py** is another simple model that generates summary sentence
