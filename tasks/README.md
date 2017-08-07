@@ -35,7 +35,7 @@ in **data/TASKNAME/** subdirectories.
 
     ```
     tools/train.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv nb_runs=4
-    tools/eval.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv - weights-sts-avg--731b5fca12808be0-*
+    tools/eval.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv - weights-sts-avg--1beecd093746891c-*
     ```
 
  * **para.py** - Paraphrasing Task.  This task is like the STS task,
@@ -43,8 +43,8 @@ in **data/TASKNAME/** subdirectories.
    a binary classification task.  Example:
 
     ```
-    tools/train.py cnn para data/para/msr/msr-para-train.tsv data/para/msr/msr-para-val.tsv nb_runs=4
-    tools/eval.py cnn para data/para/msr/msr-para-train.tsv data/para/msr/msr-para-val.tsv - weights-para-cnn--69489c8dc3b6ce11-*
+    tools/train.py gran para data/question-pairs-dataset/train.csv data/question-pairs-dataset/test.csv batch_size=32
+    tools/eval.py gran para data/question-pairs-dataset/train.csv data/question-pairs-dataset/eval.csv - weights-para-gran--254fd35feb13ceef-*
     ```
 
  * **hypev.py** - Hypothesis Evidencing.  This task is like "Answer Sentence
