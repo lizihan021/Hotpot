@@ -58,6 +58,8 @@ directory.
     as well as the MemN2N model; it also supports the Deep Averaging Networks
   * **lstm-avg.py** is a state-of-art model that generates summary sentence embeddings 
     based on LSTM and bag-of-words average embedding
+  * **gran.py** is another state-of-art model that generates summary sentence embeddings 
+    based on LSTM, bag-of-words average embeddings, and a gating system
   * **rnn.py** is a simple model that generates summary sentence embeddings
     based on GRU hidden states
   * **cnn.py** is another simple model that generates summary sentence
