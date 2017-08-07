@@ -33,8 +33,10 @@ in **data/TASKNAME/** subdirectories.
    output is a number between 0 and 5 and Pearson correlation is the metric.
    Example:
 
- `tools/train.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv nb_runs=4`
- tools/eval.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv - weights-sts-avg--731b5fca12808be0-*
+    ```
+    tools/train.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv nb_runs=4
+    tools/eval.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv - weights-sts-avg--731b5fca12808be0-*
+    ```
 
  * **para.py** - Paraphrasing Task.  This task is like the STS task,
    but rather than regressing a numerical score on output, it is
