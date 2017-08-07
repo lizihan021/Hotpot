@@ -60,11 +60,11 @@ directory.
     based on LSTM and bag-of-words average embedding
   * **gran.py** is another state-of-art model that generates summary sentence embeddings 
     based on LSTM, bag-of-words average embeddings, and a gating system
-  * **dnn.py** is a simple model that uses 4 fully-connected dense layers (TensorFlow) 
+  - **dnn.py** is a simple model that uses 4 fully-connected dense layers (TensorFlow) 
     to generate the embeddings
-  * **rnn.py** is a simple model that generates summary sentence embeddings
+  - **rnn.py** is a simple model that generates summary sentence embeddings
     based on GRU hidden states
-  * **cnn.py** is another simple model that generates summary sentence
+  - **cnn.py** is another simple model that generates summary sentence
     embeddings using a CNN and max-pooling
   * **cnnrnn.py** uses a model popular in Keras examples, using CNN to
     "smear" the input sentence, then RNN on top of that to generate the
