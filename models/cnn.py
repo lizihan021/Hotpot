@@ -12,9 +12,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-"""
 
-"""
+
 A model with a very simple architecture that never-the-less achieves
 2015-state-of-art results on the anssel-wang task (with token flags).
 You can also see this model as a standalone fully contained script
