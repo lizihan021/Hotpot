@@ -13,8 +13,10 @@ in **data/TASKNAME/** subdirectories.
 
 *   **anssel.py** - Answer Sentence Selection Task.  Example:
 
- tools/train.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv nb_runs=4
- tools/eval.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv - weights-anssel-avg--731b5fca12808be0-*
+    ```
+    tools/train.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv nb_runs=4
+    tools/eval.py avg anssel data/anssel/yodaqa/curatedv2-training.csv data/anssel/yodaqa/curatedv2-val.csv - weights-anssel-avg--731b5fca12808be0-*
+    ```
 
  * **ubuntu.py** - Ubuntu Dialogue instance of anssel/next utterance task.
    The data is serialized efficiently and custom metrics reported.  Example:
@@ -31,22 +33,27 @@ in **data/TASKNAME/** subdirectories.
    output is a number between 0 and 5 and Pearson correlation is the metric.
    Example:
 
- `tools/train.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv nb_runs=4`
- tools/eval.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv - weights-sts-avg--731b5fca12808be0-*
+    ```
+    tools/train.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv nb_runs=4
+    tools/eval.py avg sts data/sts/semeval-sts/all/2015.train.tsv data/sts/semeval-sts/all/2015.val.tsv - weights-sts-avg--1beecd093746891c-*
+    ```
 
  * **para.py** - Paraphrasing Task.  This task is like the STS task,
    but rather than regressing a numerical score on output, it is
    a binary classification task.  Example:
 
-       tools/train.py cnn para data/para/msr/msr-para-train.tsv data/para/msr/msr-para-val.tsv nb_runs=4
-   tools/eval.py cnn para data/para/msr/msr-para-train.tsv data/para/msr/msr-para-val.tsv - weights-para-cnn--69489c8dc3b6ce11-*
+    ```
+    tools/train.py gran para data/question-pairs-dataset/train.csv data/question-pairs-dataset/test.csv batch_size=32
+    tools/eval.py gran para data/question-pairs-dataset/train.csv data/question-pairs-dataset/eval.csv - weights-para-gran--254fd35feb13ceef-*
+    ```
 
  * **hypev.py** - Hypothesis Evidencing.  This task is like "Answer Sentence
    Selection" in that we have many s1 for a single s0, but the goal is
    to produce an aggregate judgement on s0 based on the pairs.  Example:
 
- tools/train.py avg hypev data/hypev/argus/argus_train.csv data/hypev/argus/argus_val.csv dropout=0 nb_runs=4 nb_epoch=16
-
+    ```
+    tools/train.py avg hypev data/hypev/argus/argus_train.csv data/hypev/argus/argus_val.csv dropout=0 nb_runs=4 nb_epoch=16
+    ```
  * **rte.py** - Recognizing Textual Entailment Task.
 
  * **snli.py** - Stanford Natural Language Inference instance of RTE task.
