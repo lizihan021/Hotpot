@@ -12,9 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-"""
 
-"""
 A model with a very simple architecture that never-the-less achieves
 2015-state-of-art results on the anssel-wang task (with token flags).
 You can also see this model as a standalone fully contained script
@@ -47,7 +45,7 @@ def config(c):
     c['cnninit'] = 'glorot_uniform'
     c['cdim'] = {1: 1, 2: 1/2, 3: 1/2, 4: 1/2, 5: 1/2}
 
-    c['project'] = True
+    c['project'] = False
     c['pdim'] = 2
     c['pact'] = 'tanh'
 
@@ -67,7 +65,7 @@ def prep_model(inputs, N, s0pad, s1pad, c):
 
     # Projection
     if c['project']:
-        outputs = Dense(int(N*c['pdim']), W_regularizer=l2(c['l2reg']), activation=c['pact'])(outputs)
+        outputs = Dense(int(N*c['pdim']), kernal_regularizer=l2(c['l2reg']), activation=c['pact'])(outputs)
         # model.add_shared_node(name='proj', inputs=['e0s_', 'e1s_'], outputs=['e0p', 'e1p'],
         #                       layer=Dense(input_dim=Nc, output_dim=int(N*c['pdim']),
         #                                   W_regularizer=l2(c['l2reg']), activation=c['pact']))
@@ -76,6 +74,4 @@ def prep_model(inputs, N, s0pad, s1pad, c):
         # model.add_shared_node(name='projdrop', inputs=['e0p', 'e1p'], outputs=['e0p_', 'e1p_'],
         #                       layer=Dropout(c['dropout'], input_shape=(N,)))
         # return ('e0p_', 'e1p_')
-        return outputs, N
-    else:
-        return outputs, N
+    return outputs, N
