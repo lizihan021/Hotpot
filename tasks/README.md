@@ -1,4 +1,4 @@
-KeraSTS Tasks
+Semantic Textual Similarity Tasks
 =============
 
 You can find Python interfaces for various tasks in this directory.
