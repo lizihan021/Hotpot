@@ -62,4 +62,3 @@ def prep_model(inputs, N, s0pad, s1pad, c):
 
     is_duplicate = Dense(1, activation='sigmoid')(merged)
     return [is_duplicate], N
-

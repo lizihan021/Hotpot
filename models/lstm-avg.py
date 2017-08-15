@@ -53,5 +53,4 @@ def prep_model(inputs, N, s0pad, s1pad, c):
     lstm_avg1 = avg(lstm1)
     lstm_avg2 = avg(lstm2)
     
-    return [lstm_avg1, lstm_avg2], N
-        
+    return [lstm_avg1, lstm_avg2], N        

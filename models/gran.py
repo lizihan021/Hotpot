@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+
 A model with the 2017-state-of-art Gated Recurrent Averaging Network 
 (GRAN) architecture that achieves a high prediction accuracy on the 
 Quera Question Pairs competition task.
@@ -77,5 +78,4 @@ def prep_model(inputs, N, s0pad, s1pad, c, granlevels=1):
     gran1 = avg(a1)
     gran2 = avg(a2)
     
-    return [gran1, gran2], N
-        
+    return [gran1, gran2], N        
