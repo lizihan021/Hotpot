@@ -1,4 +1,4 @@
-Semantic Text Similarity Dataset Hub
+Semantic Text Similarity Dataset Hotpot
 ====================================
 
 A typical NLP machine learning task involves classifying a sequence of tokens
@@ -49,8 +49,6 @@ Python is preferred, but not mandatory.)
 Software Tools
 --------------
 
-To get started with simple classifiers that use task-specific code,
-look at the **examples/** directory.
 To get started with task-universal deep learning models, look at the
 **tools/**, **models/** and **tasks/** directory.
 
@@ -60,8 +58,7 @@ To get started with task-universal deep learning models, look at the
   * **pysts/kerasts** the KeraSTS allows easy prototyping of deep learning
     models for many of the included tasks using the Keras library.
 
-  * **examples/** contains a couple of simple, self-contained baselines
-    on various tasks.
+  * **out/** contains training results of different models and tuning parameters.
 
   * **models/** directory contains various strong baseline models using
     the KeraSTS toolkit, including state-of-art neural networks
@@ -84,6 +81,9 @@ These datasets are about binary classification of independent sentence
 for example if they describe the same event (with same data), ask the
 same question, etc.
 
+  * [X] **data/question-pairs-dataset/** [Questions Pairs Dataset](https://www.kaggle.com/quora/question-pairs-dataset) 
+    contains over 400,000 lines of annotated potential question duplicate pairs.
+    
   * [X] **data/para/msr/** MSR Paraphrase Dataset (TODO: pysts manipulation tools)
 
   * [X] **data/para/askubuntu/** [AskUbuntu StackOverflow Similar Questions](https://github.com/taolei87/rcnn)
@@ -222,17 +222,3 @@ on the ACL wiki, about RTE models on the SNLI page.
   * https://github.com/ryankiros/skip-thoughts
   * Standard memory networks (MemNN, MemN2N) are in fact *f_2* models at their
     core; very similar to http://arxiv.org/abs/1412.1632
-
-Licence and Attribution
------------------------
-
-Always check the licences of the respective datasets you are using!  Some of
-them are plain CC-BY, others may be heavily restricted e.g. for non-commercial
-use only.  Default licence for anything else in this repository is ASLv2 for
-the code, CC-BY 4.0 for data.
-
-Work on this project has been in part kindly sponsored by the Medialab
-foundation (http://medialab.cz/), a Czech Technical University incubator.
-The rest of contributions by Petr Baudiš is licenced as open source via
-Ailao (http://ailao.eu/).  (Ailao also provides commercial consulting,
-customization, deployment and support services.)

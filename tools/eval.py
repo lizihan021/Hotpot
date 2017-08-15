@@ -1,6 +1,21 @@
 #!/usr/bin/python3
 # vim: set fileencoding=utf8:
 """
+Copyright 2017 Liang Qiu, Zihan Li, Yuanyi Ding
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
 Evaluate a set of pre-trained KeraSTS model instances (training runs)
 to get publication-grade results.
 
@@ -64,6 +79,9 @@ def stat(niter, fname, qty, r, alpha=0.95, bonferroni=1.):
 
 if __name__ == "__main__":
     modelname, taskname, trainf, valf, testf = sys.argv[1:6]
+    print('Train file: ', trainf)
+    print('Val file: ', valf)
+    print('Test file: ', testf)
     g = ([], [])
     g_i = 0
     for p in sys.argv[6:]:
@@ -98,6 +116,7 @@ if __name__ == "__main__":
         else:
             task.load_vocab(conf['vocabf'])
     task.load_data(trainf, valf, testf)
+    print('Dataset loaded')
 
     # Collect eval results
     res = {trainf: [], valf: [], testf: []}
@@ -108,7 +127,7 @@ if __name__ == "__main__":
         print(weightf)
         model.load_weights(weightf)
 
-        print('Predict&Eval (best val epoch)')
+        print('Predict & Eval (best val epoch)')
         resT, resv, rest = task.eval(model)
         if resT is not None:
             res[trainf].append(resT)

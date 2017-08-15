@@ -1,4 +1,19 @@
 """
+Copyright 2017 Liang Qiu, Zihan Li, Yuanyi Ding
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
 A simple averaging model.
 
 In its default settings, this is the baseline unigram (Yu, 2014) approach
@@ -27,8 +42,7 @@ Performance:
 from __future__ import print_function
 from __future__ import division
 
-from keras.models import Model
-from keras.layers import TimeDistributed, Dense, Lambda, Input
+from keras.layers import Dense, Lambda
 from keras import backend as K
 from keras.regularizers import l2
 
@@ -36,7 +50,7 @@ import pysts.kerasts.blocks as B
 
 
 def config(c):
-    c['l2reg'] = 1e-5
+    c['l2reg'] = 1e-4
 
     # word-level projection before averaging
     c['wproject'] = False
@@ -52,37 +66,41 @@ def config(c):
     c['pact'] = 'tanh'
 
     # model-external:
-    c['inp_e_dropout'] = 1/3
-    c['inp_w_dropout'] = 0
+    c['inp_e_dropout'] = 1/2
+    c['inp_w_dropout'] = 1/3
     # anssel-specific:
     c['ptscorer'] = B.mlp_ptscorer
     c['mlpsum'] = 'sum'
     c['Ddim'] = 1
 
 
-def prep_model(embedded, N_emb, s0pad, s1pad, c):
-    TDLayer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0], ) + shape[2:])
-    e0b = TDLayer(embedded[0])
-    e1b = TDLayer(embedded[1])
+def prep_model(inputs, N, s0pad, s1pad, c):
+    # Word-level projection before averaging
+    if c['wproject']:
+        wproj = Dense(int(N*c['wdim']), activation=c['wact'], kernel_regularizer=l2(c['l2reg']), name='wproj')
+        inputs[0] = wproj(inputs[0])
+        inputs[1] = wproj(inputs[1])
+    
+    # Averaging
+    avg = Lambda(function=lambda x: K.mean(x, axis=1), 
+                 output_shape=lambda shape: (shape[0], ) + shape[2:])
+    e0b = avg(inputs[0])
+    e1b = avg(inputs[1])
     bow_last = [e0b, e1b]
     
-    # TODO Deep
+    # Deep
     for i in range(c['deep']):
-        deepD1 = Dense(N_emb, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep[%d]'%(i,))
+        deepD1 = Dense(N, activation=c['nnact'], kernel_regularizer=l2(c['l2reg']), name='deep_%d'%(i,))
         bow_next_0 = deepD1(bow_last[0])
         bow_next_1 = deepD1(bow_last[1])
         bow_last = [bow_next_0, bow_next_1]
 
-    # TODO Projection
+    # Projection
     if c['project']:
-        proj = Dense(int(N_emb*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
+        proj = Dense(int(N*c['pdim']), activation=c['pact'], kernel_regularizer=l2(c['l2reg']), name='proj')
         e0b = proj(bow_last[0])
         e1b = proj(bow_last[1])
-
-        return [e0b, e1b]
+        N = N*c['pdim']
+        return [e0b, e1b], N 
     else:
-        return bow_last
-
-
-
-
+        return bow_last, N

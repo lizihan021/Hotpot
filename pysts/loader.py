@@ -1,4 +1,19 @@
 """
+Copyright 2017 Liang Qiu, Zihan Li, Yuanyi Ding
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
 This module provides a variety of loaders for our datasets.
 
 A longer term goal is to unify the dataset formats to reduce the variety
@@ -316,6 +331,27 @@ def load_msrpara(dsfile):
                 continue
             line = line.rstrip()
             label, s0id, s1id, s0x, s1x = line.split('\t')
+            labels.append(float(label))
+            s0.append(word_tokenize(s0x))
+            s1.append(word_tokenize(s1x))
+    return (s0, s1, np.array(labels))
+
+
+def load_quora(dsfile):
+    """ load a dataset in the quora csv format """
+    s0 = []
+    s1 = []
+    labels = []
+    with open(dsfile, encoding = 'utf8') as csvfile:
+        f = csv.reader(csvfile)
+        firstline = True
+        for line in f:
+            if firstline:
+                firstline = False
+                continue
+            s0x = line[3]
+            s1x = line[4]
+            label = line[5]
             labels.append(float(label))
             s0.append(word_tokenize(s0x))
             s1.append(word_tokenize(s1x))

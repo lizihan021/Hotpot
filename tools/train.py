@@ -1,5 +1,20 @@
 #!/usr/bin/python3
 """
+Copyright 2017 Liang Qiu, Zihan Li, Yuanyi Ding
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
 Train a KeraSTS model on the given task, save the trained model
 to a weights file and evaluate it on a validation set.
 
@@ -41,6 +56,7 @@ not train-specific) are:
 
         "prescoring='termfreq'" "prescoring_conf={freq_mode: 'tf'}" \
                 "prescoring_weightsf='weights-anssel-termfreq--120a2d2e6dcd0c16-bestval.h5'"
+                
 """
 
 from __future__ import print_function
@@ -59,6 +75,7 @@ import tasks
 # TODO Unused imports for evaluating commandline params
 from keras.layers.recurrent import SimpleRNN, GRU, LSTM
 from keras.optimizers import *
+from keras.utils import plot_model
 from pysts.kerasts.objectives import ranknet, ranksvm, cicerons_1504
 import pysts.kerasts.blocks as B
 from tasks import default_config
@@ -80,7 +97,7 @@ def config(model_config, task_config, params):
 def train_model(runid, model, task, c):
     print('Training')
     fit_kwargs = dict()
-    if c['balance_class']:
+    if c['balance_class']: # TODO?
         one_ratio = np.sum(task.gr['score'] == 1) / len(task.gr['score'])
         fit_kwargs['class_weight'] = {'score': {0: one_ratio, 1: 0.5}}
     if 'score' in task.gr:
@@ -88,19 +105,20 @@ def train_model(runid, model, task, c):
     else:
         n_samples = len(task.gr['classes'])
     fit_kwargs['steps_per_epoch'] = int(n_samples * c['epoch_fract'])
-    task.fit_model(model, weightsf='weights-'+runid+'-bestval.h5',
+    task.fit_model(model, weightsf='weights/weights-'+runid+'-bestval.h5',
                    batch_size=c['batch_size'], epochs=c['epochs'],
                    **fit_kwargs)
     # model.save_weights('weights-'+runid+'-final.h5', overwrite=True)
     if c['ptscorer'] is None:
-        model.save_weights('weights-'+runid+'-bestval.h5', overwrite=True)
-    model.load_weights('weights-'+runid+'-bestval.h5')
+        model.save_weights('weights/weights-'+runid+'-bestval.h5', overwrite=True)
+    model.load_weights('weights/weights-'+runid+'-bestval.h5')
 
 # used to build model and then call train_model
 def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
     print('Model')
     model = task.build_model(module_prep_model)
-
+    plot_model(model, to_file='model.png')
+    
     train_model(runid, model, task, conf)
 
     if do_eval:
@@ -112,7 +130,7 @@ def train_and_eval(runid, module_prep_model, task, conf, do_eval=True):
 
 
 if __name__ == "__main__":
-    modelname, taskname, trainfile, valfile = sys.argv[1:5]
+    modelname, taskname, trainf, valf = sys.argv[1:5]
     params = sys.argv[5:]
 
     model_module = importlib.import_module('.'+modelname, 'models')
@@ -121,16 +139,19 @@ if __name__ == "__main__":
     conf, ps, h = config(model_module.config, task.config, params)
     task.set_conf(conf)
 
-    # TODO configurable embedding class
+    # configurable embedding class
     if conf['embdim'] is not None:
         print('GloVe')
         task.emb = emb.GloVe(N=conf['embdim'])
+    else:
+        task.emb = None
 
     print('Dataset')
-    if 'vocabf' in conf: # TODO
+    if 'vocabf' in conf: 
         task.load_vocab(conf['vocabf'])
-    task.load_data(trainfile, valfile)
+    task.load_data(trainf, valf)
     print('Dataset loaded')
+
     for i_run in range(conf['nb_runs']):
         if conf['nb_runs'] == 1:
             runid = '%s-%s-%x' % (taskname, modelname, h)
