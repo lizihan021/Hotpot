@@ -116,6 +116,7 @@ if __name__ == "__main__":
         else:
             task.load_vocab(conf['vocabf'])
     task.load_data(trainf, valf, testf)
+    print('Dataset loaded')
 
     # Collect eval results
     res = {trainf: [], valf: [], testf: []}

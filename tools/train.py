@@ -143,12 +143,15 @@ if __name__ == "__main__":
     if conf['embdim'] is not None:
         print('GloVe')
         task.emb = emb.GloVe(N=conf['embdim'])
+    else:
+        task.emb = None
 
     print('Dataset')
     if 'vocabf' in conf: 
         task.load_vocab(conf['vocabf'])
     task.load_data(trainf, valf)
     print('Dataset loaded')
+
     for i_run in range(conf['nb_runs']):
         if conf['nb_runs'] == 1:
             runid = '%s-%s-%x' % (taskname, modelname, h)
